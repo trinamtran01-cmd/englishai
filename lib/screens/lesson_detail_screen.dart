@@ -322,22 +322,22 @@ class _LessonDetailScreenState
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFF3B5BDB),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang chuẩn bị nội dung bài học...',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -359,23 +359,23 @@ class _LessonDetailScreenState
               color: Colors.red,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tải nội dung bài học',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -405,22 +405,22 @@ class _LessonDetailScreenState
               color: Color(0xFF3B5BDB),
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Chưa có từ vựng',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Bài học này hiện chưa có dữ liệu từ vựng.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -452,11 +452,11 @@ class _LessonDetailScreenState
       ),
       child: Card(
         elevation: 0,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(
-            color: Color(0xFFE8EAF2),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
         ),
         child: Padding(
@@ -499,10 +499,10 @@ class _LessonDetailScreenState
               Text(
                 vocabulary.word,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A2E),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               if (vocabulary.pronunciation
@@ -522,21 +522,21 @@ class _LessonDetailScreenState
               const SizedBox(height: 28),
               const Divider(),
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Nghĩa tiếng Việt',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 vocabulary.meaning,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A2E),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               if (vocabulary.example.trim().isNotEmpty) ...[
@@ -566,12 +566,12 @@ class _LessonDetailScreenState
                             color: lessonColor,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Ví dụ',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1A2E),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -579,11 +579,11 @@ class _LessonDetailScreenState
                       const SizedBox(height: 12),
                       Text(
                         vocabulary.example,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           height: 1.5,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       if (vocabulary.exampleMeaning
@@ -592,10 +592,10 @@ class _LessonDetailScreenState
                         const SizedBox(height: 9),
                         Text(
                           vocabulary.exampleMeaning,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             height: 1.5,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -729,11 +729,11 @@ class _LessonDetailScreenState
             20,
             20,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             border: Border(
               top: BorderSide(
-                color: Color(0xFFE8EAF2),
+                color: Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
           ),
@@ -827,7 +827,6 @@ class _LessonDetailScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Chi tiết bài học',

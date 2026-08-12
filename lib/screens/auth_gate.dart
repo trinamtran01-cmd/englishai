@@ -132,7 +132,6 @@ class _LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -170,9 +169,9 @@ class _LoadingScreen extends StatelessWidget {
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -216,7 +215,6 @@ class _AuthenticationErrorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -230,23 +228,23 @@ class _AuthenticationErrorScreen extends StatelessWidget {
                   size: 68,
                 ),
                 const SizedBox(height: 18),
-                const Text(
+                Text(
                   'Không thể xác thực tài khoản',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 21,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A2E),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 11),
                 Text(
                   message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 1.5,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -381,7 +379,6 @@ class _MissingProfileScreenState
         FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -395,13 +392,13 @@ class _MissingProfileScreenState
                   size: 68,
                 ),
                 const SizedBox(height: 18),
-                const Text(
+                Text(
                   'Chưa có hồ sơ người dùng',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 21,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A2E),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 11),
@@ -410,10 +407,10 @@ class _MissingProfileScreenState
                   'nhưng chưa có document tương ứng trong '
                   'collection users.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -482,7 +479,6 @@ class _InvalidRoleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -496,13 +492,13 @@ class _InvalidRoleScreen extends StatelessWidget {
                   size: 68,
                 ),
                 const SizedBox(height: 18),
-                const Text(
+                Text(
                   'Vai trò tài khoản không hợp lệ',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 21,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A2E),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 11),
@@ -511,10 +507,10 @@ class _InvalidRoleScreen extends StatelessWidget {
                       ? 'Tài khoản chưa được thiết lập vai trò.'
                       : 'Vai trò "$role" không được hệ thống hỗ trợ.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 24),

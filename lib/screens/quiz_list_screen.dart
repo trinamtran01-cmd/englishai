@@ -328,12 +328,12 @@ class _QuizListScreenState extends State<QuizListScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: InkWell(
@@ -383,10 +383,10 @@ class _QuizListScreenState extends State<QuizListScreen> {
                       lesson.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A2E),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -394,9 +394,9 @@ class _QuizListScreenState extends State<QuizListScreen> {
                       lesson.topic,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -437,22 +437,22 @@ class _QuizListScreenState extends State<QuizListScreen> {
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFFF59F00),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang tải danh sách bài kiểm tra...',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -474,23 +474,23 @@ class _QuizListScreenState extends State<QuizListScreen> {
               size: 64,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tải bài kiểm tra',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -537,24 +537,24 @@ class _QuizListScreenState extends State<QuizListScreen> {
               ),
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'Chưa có bài kiểm tra',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Hiện chưa có bài học nào để làm bài '
               'kiểm tra.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -601,7 +601,6 @@ class _QuizListScreenState extends State<QuizListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Kiểm tra kiến thức',
@@ -720,10 +719,10 @@ class _QuizRuleRow extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               height: 1.4,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ),

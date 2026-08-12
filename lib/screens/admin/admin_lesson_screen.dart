@@ -769,11 +769,11 @@ class _AdminLessonScreenState
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -812,12 +812,13 @@ class _AdminLessonScreenState
                           Expanded(
                             child: Text(
                               lesson.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 17,
                                 fontWeight:
                                     FontWeight.bold,
-                                color:
-                                    Color(0xFF1A1A2E),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface,
                               ),
                             ),
                           ),
@@ -854,7 +855,9 @@ class _AdminLessonScreenState
                                     ? const Color(
                                         0xFF2F9E44,
                                       )
-                                    : Colors.grey,
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -874,10 +877,10 @@ class _AdminLessonScreenState
                         lesson.description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           height: 1.4,
-                          color: Colors.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -890,17 +893,17 @@ class _AdminLessonScreenState
             const SizedBox(height: 13),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.format_list_numbered_rounded,
                   size: 18,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   'Thứ tự: ${lesson.order}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const Spacer(),
@@ -931,7 +934,7 @@ class _AdminLessonScreenState
                               .visibility_off_rounded,
                       color: lesson.isActive
                           ? const Color(0xFF2F9E44)
-                          : Colors.grey,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   IconButton(
@@ -966,20 +969,20 @@ class _AdminLessonScreenState
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFF3B5BDB),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang tải danh sách bài học...',
               style: TextStyle(
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -1001,22 +1004,22 @@ class _AdminLessonScreenState
               color: Colors.red,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tải bài học',
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -1046,21 +1049,21 @@ class _AdminLessonScreenState
               color: Color(0xFF3B5BDB),
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Chưa có bài học',
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Nhấn nút bên dưới để tạo bài học đầu tiên.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -1119,11 +1122,11 @@ class _AdminLessonScreenState
                     '${lessons.length} bài học • '
                     '$activeLessons đang hoạt động • '
                     '${lessons.length - activeLessons} đang ẩn',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       height: 1.4,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -1140,7 +1143,6 @@ class _AdminLessonScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Quản lý bài học',

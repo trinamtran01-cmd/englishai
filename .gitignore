@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Biến môi trường chứa API key, không commit lên git
+.env
+
+# Script tải/trích xuất transcript (tools/extract_transcript.js):
+# PDF gốc tải về và kết quả xuất ra chỉ dùng cục bộ, không commit.
+tools/node_modules/
+tools/transcripts/
+tools/output/

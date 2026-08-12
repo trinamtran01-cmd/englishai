@@ -164,10 +164,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFE8EAF2),
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Column(
@@ -190,19 +190,19 @@ class _ProgressScreenState extends State<ProgressScreen> {
           const SizedBox(height: 14),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 23,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               height: 1.3,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -231,12 +231,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Tổng quan học tập',
           style: TextStyle(
             fontSize: 21,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1A1A2E),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 16),
@@ -246,7 +246,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.35,
+          childAspectRatio: 1.1,
           children: [
             _buildSummaryCard(
               icon: Icons.menu_book_rounded,
@@ -289,11 +289,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -335,10 +335,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
                         progress.lessonTitle.isEmpty
                             ? 'Bài học'
                             : progress.lessonTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -388,10 +388,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
               children: [
                 Text(
                   '${progress.safeViewedWords}/${progress.totalWords} từ',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const Spacer(),
@@ -424,24 +424,24 @@ class _ProgressScreenState extends State<ProgressScreen> {
             const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.repeat_rounded,
                   size: 17,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   '${progress.studyCount} lần học',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const Spacer(),
-                const Icon(
+                Icon(
                   Icons.schedule_rounded,
                   size: 17,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 6),
                 Flexible(
@@ -452,9 +452,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -467,20 +467,20 @@ class _ProgressScreenState extends State<ProgressScreen> {
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFF3B5BDB),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang tải tiến độ học tập...',
               style: TextStyle(
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -502,23 +502,23 @@ class _ProgressScreenState extends State<ProgressScreen> {
               color: Colors.red,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tải tiến độ',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -560,24 +560,24 @@ class _ProgressScreenState extends State<ProgressScreen> {
               ),
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'Chưa có tiến độ học tập',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Hãy mở một bài học và bắt đầu học từ vựng. '
               'Tiến độ của bạn sẽ được hiển thị tại đây.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -621,20 +621,20 @@ class _ProgressScreenState extends State<ProgressScreen> {
         children: [
           _buildSummarySection(progressList),
           const SizedBox(height: 30),
-          const Text(
+          Text(
             'Tiến độ từng bài',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 7),
-          const Text(
+          Text(
             'Theo dõi quá trình học của từng bài học.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 18),
@@ -651,7 +651,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Tiến độ học tập',

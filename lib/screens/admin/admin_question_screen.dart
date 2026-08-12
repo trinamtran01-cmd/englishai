@@ -441,14 +441,14 @@ class _AdminQuestionScreenState
                           },
                         ),
                         const SizedBox(height: 18),
-                        const Align(
+                        Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Các phương án trả lời',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1A2E),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -488,7 +488,7 @@ class _AdminQuestionScreenState
                                       : Icons.radio_button_unchecked_rounded,
                                   color: correctAnswerIndex == index
                                       ? const Color(0xFFF59F00)
-                                      : Colors.grey,
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               suffixIcon:
@@ -924,16 +924,16 @@ class _AdminQuestionScreenState
 
     final Color statusColor = question.isActive
         ? const Color(0xFF2F9E44)
-        : Colors.grey;
+        : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -965,11 +965,11 @@ class _AdminQuestionScreenState
                 Expanded(
                   child: Text(
                     question.question,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       height: 1.4,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -1013,7 +1013,9 @@ class _AdminQuestionScreenState
                       index == question.correctAnswerIndex
                           ? const Color(0xFF2F9E44)
                               .withValues(alpha: 0.09)
-                          : const Color(0xFFF7F8FC),
+                          : Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
                   borderRadius:
                       BorderRadius.circular(11),
                   border: Border.all(
@@ -1021,7 +1023,7 @@ class _AdminQuestionScreenState
                         index == question.correctAnswerIndex
                             ? const Color(0xFF2F9E44)
                                 .withValues(alpha: 0.30)
-                            : const Color(0xFFE8EAF2),
+                            : Theme.of(context).colorScheme.outlineVariant,
                   ),
                 ),
                 child: Row(
@@ -1035,7 +1037,9 @@ class _AdminQuestionScreenState
                                 question
                                     .correctAnswerIndex
                             ? const Color(0xFF2F9E44)
-                            : Colors.grey.shade300,
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -1047,7 +1051,7 @@ class _AdminQuestionScreenState
                                   question
                                       .correctAnswerIndex
                               ? Colors.white
-                              : const Color(0xFF1A1A2E),
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -1055,9 +1059,9 @@ class _AdminQuestionScreenState
                     Expanded(
                       child: Text(
                         question.options[index],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -1086,10 +1090,10 @@ class _AdminQuestionScreenState
                 ),
                 child: Text(
                   'Giải thích: ${question.explanation}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 1.4,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -1161,7 +1165,7 @@ class _AdminQuestionScreenState
   Widget _buildLessonSelector() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: DropdownButtonFormField<String>(
         initialValue: _selectedLessonId,
         isExpanded: true,
@@ -1199,8 +1203,8 @@ class _AdminQuestionScreenState
           const SizedBox(height: 18),
           Text(
             message,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -1305,7 +1309,6 @@ class _AdminQuestionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Quản lý câu hỏi',

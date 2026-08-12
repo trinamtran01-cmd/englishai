@@ -1,0 +1,214 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Đọc trực tiếp document users/{uid} bằng get() không tính là
+    // một request Firestore chịu rule (không đệ quy).
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // users/{userId}
+    // - Mỗi user tự tạo document của mình khi đăng ký (role mặc định 'student').
+    // - Chủ tài khoản đọc/sửa được hồ sơ của mình, nhưng không tự đổi role.
+    // - Admin đọc toàn bộ danh sách user (dashboard) và đổi role của người khác.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+
+      allow create: if isOwner(userId) &&
+        request.resource.data.role == 'student';
+
+      allow update: if (
+        isOwner(userId) &&
+        request.resource.data.role == resource.data.role
+      ) || isAdmin();
+
+      allow delete: if false;
+    }
+
+    // lessons / vocabularies / quiz_questions
+    // - Mọi user đã đăng nhập đọc được (nội dung học tập dùng chung).
+    // - Mọi user đã đăng nhập được phép "create" vì app tự sinh dữ liệu mẫu
+    //   (createSampleLessons/createSampleVocabularies/createSampleQuestions)
+    //   ngay từ màn hình học viên khi collection đang rỗng, không chỉ từ admin.
+    // - Chỉ admin được sửa/xoá (đúng với các màn admin/*.dart).
+    match /lessons/{lessonId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /vocabularies/{vocabularyId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /quiz_questions/{questionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    // quiz_results/{resultId}
+    // - Mỗi lần nộp bài tạo 1 document mới, luôn gắn userId = chính chủ.
+    // - Chủ sở hữu đọc/xoá kết quả của mình; admin đọc toàn bộ (dashboard).
+    // - Không có luồng update kết quả sau khi tạo.
+    match /quiz_results/{resultId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // learning_progress/{userId_lessonId}
+    // - Chỉ chủ sở hữu đọc/ghi/xoá tiến độ của chính mình.
+    match /learning_progress/{progressId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == request.auth.uid;
+
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ai_recommendations/{userId_lessonId}
+    // - Chỉ chủ sở hữu đọc/ghi/xoá gợi ý học tập của chính mình.
+    match /ai_recommendations/{recommendationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+
+      allow update: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.userId == request.auth.uid;
+
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // ai_vocabulary_scans/{scanId}
+    // - Collection mới cho tính năng AI Camera quét từ vựng.
+    // - Trước đây KHÔNG có rule riêng nên rơi vào default-deny -> permission-denied.
+    // - Chỉ chủ sở hữu (userId == request.auth.uid) được create/read/update/delete.
+    match /ai_vocabulary_scans/{scanId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // listening_videos/{videoId}
+    // - Collection mới cho tính năng Luyện Nghe & Nói AI.
+    // - Mọi user đã đăng nhập đọc được (nội dung học tập dùng chung).
+    // - Chỉ admin được tạo/sửa/xoá (quản lý qua admin_listening_screen.dart).
+    match /listening_videos/{videoId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // listening_attempts/{attemptId}
+    // - Mỗi lần hoàn thành bước nghe & điền từ tạo 1 document mới,
+    //   luôn gắn userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá kết quả của mình.
+    match /listening_attempts/{attemptId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // speaking_feedbacks/{feedbackId}
+    // - Mỗi lần AI phân tích giọng nói tạo 1 document mới,
+    //   luôn gắn userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá kết quả của mình.
+    match /speaking_feedbacks/{feedbackId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // shadowing_lessons/{lessonId}, shadowing_segments/{segmentId}
+    // - Collection mới cho tính năng Luyện Shadowing.
+    // - Mọi user đã đăng nhập đọc được (nội dung học tập dùng chung).
+    // - Chỉ admin được tạo/sửa/xoá (quản lý qua admin_shadowing_screen.dart).
+    match /shadowing_lessons/{lessonId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /shadowing_segments/{segmentId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // shadowing_attempts/{attemptId}
+    // - Mỗi lần ghi âm nhại câu tạo 1 document mới, luôn gắn
+    //   userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá kết quả của mình.
+    match /shadowing_attempts/{attemptId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // shadowing_ai_feedbacks/{feedbackId}
+    // - Mỗi lần AI Pronunciation Coach phân tích tạo 1 document mới,
+    //   luôn gắn userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá kết quả của mình.
+    match /shadowing_ai_feedbacks/{feedbackId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // writing_tasks/{taskId}
+    // - Collection mới cho tính năng Luyện Viết AI.
+    // - Mọi user đã đăng nhập đọc được (nội dung học tập dùng chung).
+    // - Chỉ admin được tạo/sửa/xoá (quản lý qua admin_writing_screen.dart).
+    match /writing_tasks/{taskId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // writing_attempts/{attemptId}
+    // - Mỗi lần nộp bài Luyện Viết tạo 1 document mới, luôn gắn
+    //   userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá bài làm của mình.
+    match /writing_attempts/{attemptId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // writing_ai_feedbacks/{feedbackId}
+    // - Mỗi lần AI chấm bài Luyện Viết tạo 1 document mới, luôn gắn
+    //   userId = chính chủ.
+    // - Chỉ chủ sở hữu đọc/sửa/xoá kết quả của mình.
+    match /writing_ai_feedbacks/{feedbackId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // feature_flags/{featureId}
+    // - Collection mới cho tính năng Admin tạm khóa 1 tính năng
+    //   (đánh dấu "Đang phát triển") — quản lý qua
+    //   admin_feature_flags_screen.dart.
+    // - Mọi user đã đăng nhập đọc được (student cần đọc để biết
+    //   ẩn/hiện đúng tính năng trên trang chủ).
+    // - Chỉ admin được tạo/sửa/xoá.
+    match /feature_flags/{featureId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Mặc định từ chối mọi collection khác không được khai báo ở trên.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

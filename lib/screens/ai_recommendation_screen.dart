@@ -415,12 +415,12 @@ class _AiRecommendationScreenState
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -503,10 +503,10 @@ class _AiRecommendationScreenState
                       const SizedBox(height: 8),
                       Text(
                         recommendation.lessonTitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -520,27 +520,27 @@ class _AiRecommendationScreenState
               width: double.infinity,
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F8FC),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.psychology_alt_rounded,
                         color: Color(0xFF9C36B5),
                         size: 20,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         'Lý do đề xuất',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -548,10 +548,10 @@ class _AiRecommendationScreenState
                   const SizedBox(height: 9),
                   Text(
                     recommendation.reason,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -607,10 +607,10 @@ class _AiRecommendationScreenState
                 Expanded(
                   child: Text(
                     recommendation.suggestedAction,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -705,9 +705,9 @@ class _AiRecommendationScreenState
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -716,28 +716,28 @@ class _AiRecommendationScreenState
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.auto_awesome_rounded,
               color: Color(0xFF9C36B5),
               size: 58,
             ),
-            SizedBox(height: 22),
-            CircularProgressIndicator(
+            const SizedBox(height: 22),
+            const CircularProgressIndicator(
               color: Color(0xFF9C36B5),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'AI đang phân tích kết quả học tập...',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -759,23 +759,23 @@ class _AiRecommendationScreenState
               size: 68,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tạo gợi ý',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -820,24 +820,24 @@ class _AiRecommendationScreenState
               ),
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'Chưa có gợi ý học tập',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Hãy học ít nhất một bài hoặc làm bài kiểm tra '
               'để hệ thống có dữ liệu phân tích.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -877,13 +877,13 @@ class _AiRecommendationScreenState
           const SizedBox(height: 26),
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Đề xuất dành cho bạn',
                   style: TextStyle(
                     fontSize: 21,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1A2E),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -910,11 +910,11 @@ class _AiRecommendationScreenState
             ],
           ),
           const SizedBox(height: 7),
-          const Text(
+          Text(
             'Gợi ý có mức ưu tiên cao được hiển thị trước.',
             style: TextStyle(
               fontSize: 13,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 18),
@@ -936,7 +936,6 @@ class _AiRecommendationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Gợi ý từ AI',

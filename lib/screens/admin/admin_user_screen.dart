@@ -374,9 +374,9 @@ class _AdminUserScreenState
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10,
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -471,13 +471,13 @@ class _AdminUserScreenState
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(
           color: isCurrentUser
               ? const Color(0xFF364FC7)
-              : const Color(0xFFE8EAF2),
+              : Theme.of(context).colorScheme.outlineVariant,
           width: isCurrentUser ? 1.5 : 1,
         ),
       ),
@@ -516,10 +516,10 @@ class _AdminUserScreenState
                           maxLines: 1,
                           overflow:
                               TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A2E),
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -554,9 +554,9 @@ class _AdminUserScreenState
                     email,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -653,20 +653,20 @@ class _AdminUserScreenState
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFF0C8599),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang tải danh sách tài khoản...',
               style: TextStyle(
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -688,22 +688,22 @@ class _AdminUserScreenState
               color: Colors.red,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể tải tài khoản',
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               error.toString(),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -731,10 +731,10 @@ class _AdminUserScreenState
               isFiltered
                   ? 'Không tìm thấy tài khoản'
                   : 'Chưa có tài khoản',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
@@ -743,9 +743,9 @@ class _AdminUserScreenState
                   ? 'Hãy thay đổi từ khóa hoặc bộ lọc.'
                   : 'Danh sách tài khoản hiện đang trống.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             if (isFiltered) ...[
@@ -783,7 +783,7 @@ class _AdminUserScreenState
     return Column(
       children: [
         Container(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           padding: const EdgeInsets.fromLTRB(
             16,
             16,
@@ -828,7 +828,6 @@ class _AdminUserScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Quản lý tài khoản',

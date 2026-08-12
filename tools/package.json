@@ -1,0 +1,15 @@
+{
+  "name": "english-ai-app-tools",
+  "version": "1.0.0",
+  "description": "Script hỗ trợ tải & trích xuất transcript cho tính năng Luyện Nghe & Nói AI",
+  "main": "extract_transcript.js",
+  "scripts": {
+    "extract": "node extract_transcript.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "pdf-parse": "^2.4.5"
+  }
+}

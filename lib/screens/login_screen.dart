@@ -78,15 +78,15 @@ class _LoginScreenState extends State<LoginScreen> {
       prefixIcon: Icon(icon),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: Color(0xFFE1E5F2),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -115,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -154,23 +153,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  const Text(
+                  Text(
                     'Học tiếng Anh cùng AI',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
 
-                  const Text(
+                  Text(
                     'Đăng nhập để tiếp tục hành trình học tập',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 36),

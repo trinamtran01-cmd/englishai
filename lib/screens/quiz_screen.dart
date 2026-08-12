@@ -306,12 +306,12 @@ class _QuizScreenState extends State<QuizScreen> {
                 color: const Color(0xFF3B5BDB),
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Kết quả đã được lưu vào Firestore.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -427,7 +427,7 @@ class _QuizScreenState extends State<QuizScreen> {
       child: Material(
         color: isSelected
             ? _lessonColor.withValues(alpha: 0.10)
-            : Colors.white,
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: _isSubmitting
@@ -475,7 +475,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       fontWeight: FontWeight.bold,
                       color: isSelected
                           ? Colors.white
-                          : const Color(0xFF1A1A2E),
+                          : Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -489,7 +489,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.normal,
-                      color: const Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -551,10 +551,10 @@ class _QuizScreenState extends State<QuizScreen> {
                 'Đã trả lời '
                 '${_selectedAnswers.length}/'
                 '${widget.questions.length}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -562,19 +562,19 @@ class _QuizScreenState extends State<QuizScreen> {
           const SizedBox(height: 22),
           Text(
             question.question,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               height: 1.4,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Chọn một đáp án đúng:',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 22),
@@ -693,11 +693,11 @@ class _QuizScreenState extends State<QuizScreen> {
             20,
             20,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
             border: Border(
               top: BorderSide(
-                color: Color(0xFFE8EAF2),
+                color: Theme.of(context).colorScheme.outlineVariant,
               ),
             ),
           ),
@@ -824,7 +824,6 @@ class _QuizScreenState extends State<QuizScreen> {
   Navigator.of(context).pop();
 },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7FF),
         appBar: AppBar(
           title: const Text(
             'Làm bài kiểm tra',
@@ -870,9 +869,9 @@ class _ResultRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const Spacer(),

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../services/admin_service.dart';
 import '../../services/auth_service.dart';
+import 'admin_feature_flags_screen.dart';
 import 'admin_lesson_screen.dart';
+import 'admin_listening_screen.dart';
 import 'admin_question_screen.dart';
+import 'admin_shadowing_screen.dart';
 import 'admin_user_screen.dart';
 import 'admin_vocabulary_screen.dart';
+import 'admin_writing_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -204,6 +208,70 @@ class _AdminDashboardScreenState
     await _loadDashboard();
   }
 
+  Future<void> _openListeningManagement() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return const AdminListeningScreen();
+        },
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadDashboard();
+  }
+
+  Future<void> _openShadowingManagement() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return const AdminShadowingScreen();
+        },
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadDashboard();
+  }
+
+  Future<void> _openWritingManagement() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return const AdminWritingScreen();
+        },
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadDashboard();
+  }
+
+  Future<void> _openFeatureFlagsManagement() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return const AdminFeatureFlagsScreen();
+        },
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadDashboard();
+  }
+
   Widget _buildStatisticCard({
     required IconData icon,
     required String value,
@@ -213,10 +281,10 @@ class _AdminDashboardScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFFE8EAF2),
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
         boxShadow: [
           BoxShadow(
@@ -228,39 +296,44 @@ class _AdminDashboardScreenState
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 43,
-            height: 43,
+            width: 38,
+            height: 38,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(
               icon,
               color: color,
-              size: 24,
+              size: 21,
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 25,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 12,
-              height: 1.3,
-              color: Colors.grey,
+          const SizedBox(height: 3),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.25,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -277,12 +350,12 @@ class _AdminDashboardScreenState
   }) {
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(17),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: InkWell(
@@ -317,10 +390,10 @@ class _AdminDashboardScreenState
                         Expanded(
                           child: Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1A1A2E),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -350,10 +423,12 @@ class _AdminDashboardScreenState
                     const SizedBox(height: 5),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         height: 1.4,
-                        color: Colors.grey,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -468,12 +543,12 @@ class _AdminDashboardScreenState
             ),
           ),
           const SizedBox(height: 28),
-          const Text(
+          Text(
             'Tổng quan hệ thống',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -484,7 +559,7 @@ class _AdminDashboardScreenState
                 const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.25,
+            childAspectRatio: 1.05,
             children: [
               _buildStatisticCard(
                 icon: Icons.people_alt_rounded,
@@ -535,13 +610,13 @@ class _AdminDashboardScreenState
                   size: 31,
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Tổng số lượt làm bài kiểm tra',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A2E),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -557,20 +632,20 @@ class _AdminDashboardScreenState
             ),
           ),
           const SizedBox(height: 30),
-          const Text(
+          Text(
             'Chức năng quản lý',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A2E),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 7),
-          const Text(
+          Text(
             'Chọn nội dung cần quản lý.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 17),
@@ -609,27 +684,63 @@ class _AdminDashboardScreenState
             color: const Color(0xFF0C8599),
             onTap: _openUserManagement,
           ),
+          const SizedBox(height: 12),
+          _buildManagementCard(
+            icon: Icons.headphones_rounded,
+            title: 'Quản lý luyện nghe & nói',
+            description:
+                'Thêm, sửa, xóa video luyện nghe và câu gợi ý luyện nói.',
+            color: const Color(0xFF0C8599),
+            onTap: _openListeningManagement,
+          ),
+          const SizedBox(height: 12),
+          _buildManagementCard(
+            icon: Icons.record_voice_over_rounded,
+            title: 'Quản lý luyện Shadowing',
+            description:
+                'Thêm, sửa, xóa bài luyện Shadowing và từng câu bên trong.',
+            color: const Color(0xFF7048E8),
+            onTap: _openShadowingManagement,
+          ),
+          const SizedBox(height: 12),
+          _buildManagementCard(
+            icon: Icons.edit_note_rounded,
+            title: 'Quản lý Luyện Viết AI',
+            description:
+                'Thêm, sửa, xóa đề bài Writing Task 1/Task 2.',
+            color: const Color(0xFFE8590C),
+            onTap: _openWritingManagement,
+          ),
+          const SizedBox(height: 12),
+          _buildManagementCard(
+            icon: Icons.toggle_on_rounded,
+            title: 'Quản lý tính năng',
+            description:
+                'Tạm bật/tắt từng tính năng trên trang chủ học viên.',
+            color: const Color(0xFF364FC7),
+            onTap: _openFeatureFlagsManagement,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: Color(0xFF364FC7),
             ),
-            SizedBox(height: 18),
+            const SizedBox(height: 18),
             Text(
               'Đang tải dữ liệu quản trị...',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -651,23 +762,23 @@ class _AdminDashboardScreenState
               color: Colors.red,
             ),
             const SizedBox(height: 18),
-            const Text(
+            Text(
               'Không thể mở trang quản trị',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A2E),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 22),
@@ -692,7 +803,6 @@ class _AdminDashboardScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text(

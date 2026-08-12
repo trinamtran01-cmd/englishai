@@ -1,12 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'firebase_options.dart';
 import 'screens/auth_gate.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   // Đảm bảo Flutter đã khởi tạo đầy đủ trước khi gọi Firebase.
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Nạp file .env chứa GEMINI_API_KEY trước khi chạy ứng dụng.
+  await dotenv.load(fileName: '.env');
 
   // Khởi tạo Firebase bằng cấu hình do FlutterFire CLI tạo.
   await Firebase.initializeApp(
@@ -27,63 +32,7 @@ class EnglishAiApp extends StatelessWidget {
       // Tắt biểu tượng DEBUG ở góc phải màn hình.
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3B5BDB),
-          brightness: Brightness.light,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF5F7FF),
-
-        appBarTheme: const AppBarTheme(
-          centerTitle: false,
-          elevation: 0,
-        ),
-
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF3B5BDB),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF3B5BDB),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 15,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-
-        snackBarTheme: const SnackBarThemeData(
-          behavior: SnackBarBehavior.floating,
-        ),
-      ),
+      theme: AppTheme.darkTheme,
 
       // AuthGate tự quyết định hiển thị LoginScreen hoặc HomeScreen.
       home: const AuthGate(),

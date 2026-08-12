@@ -792,16 +792,16 @@ class _AdminVocabularyScreenState
 
     final Color statusColor = vocabulary.isActive
         ? const Color(0xFF2F9E44)
-        : Colors.grey;
+        : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(
-          color: Color(0xFFE8EAF2),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       child: Padding(
@@ -837,10 +837,10 @@ class _AdminVocabularyScreenState
                     children: [
                       Text(
                         vocabulary.word,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       if (vocabulary.pronunciation
@@ -858,9 +858,9 @@ class _AdminVocabularyScreenState
                       const SizedBox(height: 5),
                       Text(
                         vocabulary.meaning,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A1A2E),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -895,9 +895,9 @@ class _AdminVocabularyScreenState
             Text(
               '${vocabulary.displayPartOfSpeech} • '
               'Thứ tự ${vocabulary.order}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             if (vocabulary.example
@@ -908,7 +908,7 @@ class _AdminVocabularyScreenState
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7F8FC),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius:
                       BorderRadius.circular(12),
                 ),
@@ -990,7 +990,7 @@ class _AdminVocabularyScreenState
   Widget _buildLessonSelector() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       child: DropdownButtonFormField<String>(
         initialValue: _selectedLessonId,
         isExpanded: true,
@@ -1029,8 +1029,8 @@ class _AdminVocabularyScreenState
           const SizedBox(height: 18),
           Text(
             message,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -1130,7 +1130,6 @@ class _AdminVocabularyScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
       appBar: AppBar(
         title: const Text(
           'Quản lý từ vựng',
