@@ -10,12 +10,10 @@ class AdminQuestionScreen extends StatefulWidget {
   const AdminQuestionScreen({super.key});
 
   @override
-  State<AdminQuestionScreen> createState() =>
-      _AdminQuestionScreenState();
+  State<AdminQuestionScreen> createState() => _AdminQuestionScreenState();
 }
 
-class _AdminQuestionScreenState
-    extends State<AdminQuestionScreen> {
+class _AdminQuestionScreenState extends State<AdminQuestionScreen> {
   final AdminService _adminService = AdminService();
   final LessonService _lessonService = LessonService();
   final QuizService _quizService = QuizService();
@@ -58,17 +56,13 @@ class _AdminQuestionScreenState
     });
 
     try {
-      final bool isAdmin =
-          await _adminService.isCurrentUserAdmin();
+      final bool isAdmin = await _adminService.isCurrentUserAdmin();
 
       if (!isAdmin) {
-        throw StateError(
-          'Tài khoản hiện tại không có quyền quản trị.',
-        );
+        throw StateError('Tài khoản hiện tại không có quyền quản trị.');
       }
 
-      final List<Lesson> lessons =
-          await _lessonService.getAllLessons();
+      final List<Lesson> lessons = await _lessonService.getAllLessons();
 
       if (!mounted) {
         return;
@@ -81,10 +75,7 @@ class _AdminQuestionScreenState
       } else {
         final bool selectedLessonExists =
             selectedLessonId != null &&
-                lessons.any(
-                  (Lesson lesson) =>
-                      lesson.id == selectedLessonId,
-                );
+            lessons.any((Lesson lesson) => lesson.id == selectedLessonId);
 
         if (!selectedLessonExists) {
           selectedLessonId = lessons.first.id;
@@ -112,19 +103,15 @@ class _AdminQuestionScreenState
     }
   }
 
-  Future<void> _loadQuestions(
-    String lessonId,
-  ) async {
+  Future<void> _loadQuestions(String lessonId) async {
     setState(() {
       _isLoadingQuestions = true;
       _errorMessage = null;
     });
 
     try {
-      final List<QuizQuestion> questions =
-          await _quizService.getQuestionsByLesson(
-        lessonId,
-      );
+      final List<QuizQuestion> questions = await _quizService
+          .getQuestionsByLesson(lessonId);
 
       if (!mounted) {
         return;
@@ -146,11 +133,8 @@ class _AdminQuestionScreenState
     }
   }
 
-  Future<void> _selectLesson(
-    String? lessonId,
-  ) async {
-    if (lessonId == null ||
-        lessonId == _selectedLessonId) {
+  Future<void> _selectLesson(String? lessonId) async {
+    if (lessonId == null || lessonId == _selectedLessonId) {
       return;
     }
 
@@ -195,9 +179,7 @@ class _AdminQuestionScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Đã kiểm tra và tạo dữ liệu câu hỏi mẫu.',
-          ),
+          content: Text('Đã kiểm tra và tạo dữ liệu câu hỏi mẫu.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -212,26 +194,20 @@ class _AdminQuestionScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể tạo câu hỏi mẫu: $error',
-          ),
+          content: Text('Không thể tạo câu hỏi mẫu: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _showQuestionForm({
-    QuizQuestion? question,
-  }) async {
+  Future<void> _showQuestionForm({QuizQuestion? question}) async {
     final Lesson? lesson = _selectedLesson;
 
     if (lesson == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Vui lòng chọn bài học trước.',
-          ),
+          content: Text('Vui lòng chọn bài học trước.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -240,53 +216,35 @@ class _AdminQuestionScreenState
 
     final bool isEditing = question != null;
 
-    final TextEditingController questionController =
-        TextEditingController(
+    final TextEditingController questionController = TextEditingController(
       text: question?.question ?? '',
     );
 
     final List<TextEditingController> optionControllers =
-        List<TextEditingController>.generate(
-      4,
-      (int index) {
-        final String initialText =
-            question != null &&
-                    index < question.options.length
-                ? question.options[index]
-                : '';
+        List<TextEditingController>.generate(4, (int index) {
+          final String initialText =
+              question != null && index < question.options.length
+              ? question.options[index]
+              : '';
 
-        return TextEditingController(
-          text: initialText,
-        );
-      },
-    );
+          return TextEditingController(text: initialText);
+        });
 
-    final TextEditingController explanationController =
-        TextEditingController(
+    final TextEditingController explanationController = TextEditingController(
       text: question?.explanation ?? '',
     );
 
-    final TextEditingController orderController =
-        TextEditingController(
-      text: question?.order.toString() ??
-          (_questions.length + 1).toString(),
+    final TextEditingController orderController = TextEditingController(
+      text: question?.order.toString() ?? (_questions.length + 1).toString(),
     );
 
-    final GlobalKey<FormState> formKey =
-        GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-    int correctAnswerIndex =
-        question?.correctAnswerIndex ?? 0;
+    int correctAnswerIndex = question?.correctAnswerIndex ?? 0;
 
-    String difficulty =
-        question?.difficulty.trim().toLowerCase() ??
-            'easy';
+    String difficulty = question?.difficulty.trim().toLowerCase() ?? 'easy';
 
-    if (!<String>[
-      'easy',
-      'medium',
-      'hard',
-    ].contains(difficulty)) {
+    if (!<String>['easy', 'medium', 'hard'].contains(difficulty)) {
       difficulty = 'easy';
     }
 
@@ -298,412 +256,355 @@ class _AdminQuestionScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveQuestion() async {
-              if (!formKey.currentState!.validate() ||
-                  isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveQuestion() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final List<String> options =
-                  optionControllers
+                  final List<String> options = optionControllers
                       .map(
-                        (
-                          TextEditingController controller,
-                        ) =>
+                        (TextEditingController controller) =>
                             controller.text.trim(),
                       )
                       .toList();
 
-              final QuizQuestion questionToSave =
-                  QuizQuestion(
-                id: question?.id ?? '',
-                lessonId: lesson.id,
-                lessonTitle: lesson.title,
-                question: questionController.text.trim(),
-                options: options,
-                correctAnswerIndex:
-                    correctAnswerIndex,
-                explanation:
-                    explanationController.text.trim(),
-                difficulty: difficulty,
-                order: int.parse(
-                  orderController.text.trim(),
-                ),
-                isActive: isActive,
-                createdAt: question?.createdAt,
-                updatedAt: question?.updatedAt,
-              );
-
-              try {
-                await _adminService.requireAdmin();
-
-                if (isEditing) {
-                  await _quizService.updateQuestion(
-                    questionToSave,
+                  final QuizQuestion questionToSave = QuizQuestion(
+                    id: question?.id ?? '',
+                    lessonId: lesson.id,
+                    lessonTitle: lesson.title,
+                    question: questionController.text.trim(),
+                    options: options,
+                    correctAnswerIndex: correctAnswerIndex,
+                    explanation: explanationController.text.trim(),
+                    difficulty: difficulty,
+                    order: int.parse(orderController.text.trim()),
+                    isActive: isActive,
+                    createdAt: question?.createdAt,
+                    updatedAt: question?.updatedAt,
                   );
-                } else {
-                  await _quizService.addQuestion(
-                    questionToSave,
-                  );
+
+                  try {
+                    await _adminService.requireAdmin();
+
+                    if (isEditing) {
+                      await _quizService.updateQuestion(questionToSave);
+                    } else {
+                      await _quizService.addQuestion(questionToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu câu hỏi: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu câu hỏi: $error',
-                    ),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing ? 'Chỉnh sửa câu hỏi' : 'Thêm câu hỏi mới',
                   ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                isEditing
-                    ? 'Chỉnh sửa câu hỏi'
-                    : 'Thêm câu hỏi mới',
-              ),
-              content: SizedBox(
-                width: 560,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF59F00)
-                                .withValues(alpha: 0.10),
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Bài học: ${lesson.title}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFF08C00),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: questionController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 5,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Nội dung câu hỏi',
-                            alignLabelWithHint: true,
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 35,
+                  content: SizedBox(
+                    width: 560,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFFF59F00,
+                                ).withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(
-                                Icons.help_outline_rounded,
-                              ),
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập nội dung câu hỏi';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 18),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Các phương án trả lời',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        for (
-                          int index = 0;
-                          index <
-                              optionControllers.length;
-                          index++
-                        ) ...[
-                          TextFormField(
-                            controller:
-                                optionControllers[index],
-                            enabled: !isSaving,
-                            textInputAction:
-                                index ==
-                                        optionControllers
-                                                .length -
-                                            1
-                                    ? TextInputAction.done
-                                    : TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText:
-                                  'Đáp án ${String.fromCharCode(65 + index)}',
-                              prefixIcon: IconButton(
-                                tooltip: 'Chọn làm đáp án đúng',
-                                onPressed: isSaving
-                                    ? null
-                                    : () {
-                                        setDialogState(() {
-                                          correctAnswerIndex = index;
-                                        });
-                                      },
-                                icon: Icon(
-                                  correctAnswerIndex == index
-                                      ? Icons.radio_button_checked_rounded
-                                      : Icons.radio_button_unchecked_rounded,
-                                  color: correctAnswerIndex == index
-                                      ? const Color(0xFFF59F00)
-                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                              child: Text(
+                                'Bài học: ${lesson.title}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFF08C00),
                                 ),
                               ),
-                              suffixIcon:
-                                  correctAnswerIndex ==
-                                          index
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: questionController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 5,
+                              decoration: const InputDecoration(
+                                labelText: 'Nội dung câu hỏi',
+                                alignLabelWithHint: true,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(bottom: 35),
+                                  child: Icon(Icons.help_outline_rounded),
+                                ),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập nội dung câu hỏi';
+                                }
+
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 18),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Các phương án trả lời',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            for (
+                              int index = 0;
+                              index < optionControllers.length;
+                              index++
+                            ) ...[
+                              TextFormField(
+                                controller: optionControllers[index],
+                                enabled: !isSaving,
+                                textInputAction:
+                                    index == optionControllers.length - 1
+                                    ? TextInputAction.done
+                                    : TextInputAction.next,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      'Đáp án ${String.fromCharCode(65 + index)}',
+                                  prefixIcon: IconButton(
+                                    tooltip: 'Chọn làm đáp án đúng',
+                                    onPressed: isSaving
+                                        ? null
+                                        : () {
+                                            setDialogState(() {
+                                              correctAnswerIndex = index;
+                                            });
+                                          },
+                                    icon: Icon(
+                                      correctAnswerIndex == index
+                                          ? Icons.radio_button_checked_rounded
+                                          : Icons
+                                                .radio_button_unchecked_rounded,
+                                      color: correctAnswerIndex == index
+                                          ? const Color(0xFFF59F00)
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  suffixIcon: correctAnswerIndex == index
                                       ? const Icon(
-                                          Icons
-                                              .check_circle_rounded,
-                                          color: Color(
-                                            0xFF2F9E44,
-                                          ),
+                                          Icons.check_circle_rounded,
+                                          color: Color(0xFF2F9E44),
                                         )
                                       : null,
-                            ),
-                            validator: (String? value) {
-                              if (value == null ||
-                                  value
-                                      .trim()
-                                      .isEmpty) {
-                                return 'Vui lòng nhập đáp án';
-                              }
-
-                              return null;
-                            },
-                          ),
-                          if (index <
-                              optionControllers.length -
-                                  1)
-                            const SizedBox(height: 12),
-                        ],
-                        const SizedBox(height: 15),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2F9E44)
-                                .withValues(alpha: 0.08),
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Đáp án đúng: '
-                            '${String.fromCharCode(65 + correctAnswerIndex)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2F9E44),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller:
-                              explanationController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 5,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Lời giải thích',
-                            alignLabelWithHint: true,
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 35,
-                              ),
-                              child: Icon(
-                                Icons
-                                    .lightbulb_outline_rounded,
-                              ),
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập lời giải thích';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        DropdownButtonFormField<String>(
-                          initialValue: difficulty,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Mức độ khó',
-                            prefixIcon: Icon(
-                              Icons.signal_cellular_alt_rounded,
-                            ),
-                          ),
-                          items: const [
-                            DropdownMenuItem<String>(
-                              value: 'easy',
-                              child: Text('Dễ'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'medium',
-                              child: Text(
-                                'Trung bình',
-                              ),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'hard',
-                              child: Text('Khó'),
-                            ),
-                          ],
-                          onChanged: isSaving
-                              ? null
-                              : (String? value) {
-                                  if (value == null) {
-                                    return;
+                                ),
+                                validator: (String? value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Vui lòng nhập đáp án';
                                   }
 
-                                  setDialogState(() {
-                                    difficulty = value;
-                                  });
+                                  return null;
                                 },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: orderController,
-                          enabled: !isSaving,
-                          keyboardType:
-                              TextInputType.number,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Thứ tự hiển thị',
-                            prefixIcon: Icon(
-                              Icons.format_list_numbered,
+                              ),
+                              if (index < optionControllers.length - 1)
+                                const SizedBox(height: 12),
+                            ],
+                            const SizedBox(height: 15),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF2F9E44,
+                                ).withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Đáp án đúng: '
+                                '${String.fromCharCode(65 + correctAnswerIndex)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF2F9E44),
+                                ),
+                              ),
                             ),
-                          ),
-                          validator: (String? value) {
-                            final int? order =
-                                int.tryParse(
-                              value?.trim() ?? '',
-                            );
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: explanationController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 5,
+                              decoration: const InputDecoration(
+                                labelText: 'Lời giải thích',
+                                alignLabelWithHint: true,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(bottom: 35),
+                                  child: Icon(Icons.lightbulb_outline_rounded),
+                                ),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập lời giải thích';
+                                }
 
-                            if (order == null ||
-                                order < 0) {
-                              return 'Thứ tự phải là số từ 0 trở lên';
-                            }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            DropdownButtonFormField<String>(
+                              initialValue: difficulty,
+                              decoration: const InputDecoration(
+                                labelText: 'Mức độ khó',
+                                prefixIcon: Icon(
+                                  Icons.signal_cellular_alt_rounded,
+                                ),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'easy',
+                                  child: Text('Dễ'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'medium',
+                                  child: Text('Trung bình'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'hard',
+                                  child: Text('Khó'),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (String? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
 
-                            return null;
-                          },
+                                      setDialogState(() {
+                                        difficulty = value;
+                                      });
+                                    },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: orderController,
+                              enabled: !isSaving,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Thứ tự hiển thị',
+                                prefixIcon: Icon(Icons.format_list_numbered),
+                              ),
+                              validator: (String? value) {
+                                final int? order = int.tryParse(
+                                  value?.trim() ?? '',
+                                );
+
+                                if (order == null || order < 0) {
+                                  return 'Thứ tự phải là số từ 0 trở lên';
+                                }
+
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Câu hỏi đang hoạt động'),
+                              subtitle: Text(
+                                isActive
+                                    ? 'Câu hỏi được sử dụng trong bài kiểm tra'
+                                    : 'Câu hỏi đang bị ẩn',
+                              ),
+                              value: isActive,
+                              activeThumbColor: const Color(0xFFF59F00),
+                              onChanged: isSaving
+                                  ? null
+                                  : (bool value) {
+                                      setDialogState(() {
+                                        isActive = value;
+                                      });
+                                    },
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'Câu hỏi đang hoạt động',
-                          ),
-                          subtitle: Text(
-                            isActive
-                                ? 'Câu hỏi được sử dụng trong bài kiểm tra'
-                                : 'Câu hỏi đang bị ẩn',
-                          ),
-                          value: isActive,
-                          activeThumbColor:
-                              const Color(0xFFF59F00),
-                          onChanged: isSaving
-                              ? null
-                              : (bool value) {
-                                  setDialogState(() {
-                                    isActive = value;
-                                  });
-                                },
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext)
-                              .pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed:
-                      isSaving ? null : saveQuestion,
-                  style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFF59F00),
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child:
-                              CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveQuestion,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFF59F00),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm câu hỏi',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -712,8 +613,7 @@ class _AdminQuestionScreenState
     explanationController.dispose();
     orderController.dispose();
 
-    for (final TextEditingController controller
-        in optionControllers) {
+    for (final TextEditingController controller in optionControllers) {
       controller.dispose();
     }
 
@@ -724,9 +624,7 @@ class _AdminQuestionScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isEditing
-              ? 'Đã cập nhật câu hỏi.'
-              : 'Đã thêm câu hỏi mới.',
+          isEditing ? 'Đã cập nhật câu hỏi.' : 'Đã thêm câu hỏi mới.',
         ),
         backgroundColor: Colors.green,
       ),
@@ -736,8 +634,7 @@ class _AdminQuestionScreenState
   }
 
   Future<void> _addQuestion() async {
-    if (_isAddingQuestion ||
-        _selectedLesson == null) {
+    if (_isAddingQuestion || _selectedLesson == null) {
       return;
     }
 
@@ -756,9 +653,7 @@ class _AdminQuestionScreenState
     });
   }
 
-  Future<void> _updateQuestionStatus(
-    QuizQuestion question,
-  ) async {
+  Future<void> _updateQuestionStatus(QuizQuestion question) async {
     if (_processingQuestionId != null) {
       return;
     }
@@ -793,18 +688,14 @@ class _AdminQuestionScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể cập nhật trạng thái: $error',
-          ),
+          content: Text('Không thể cập nhật trạng thái: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _deleteQuestion(
-    QuizQuestion question,
-  ) async {
+  Future<void> _deleteQuestion(QuizQuestion question) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -814,10 +705,7 @@ class _AdminQuestionScreenState
             color: Colors.red,
             size: 48,
           ),
-          title: const Text(
-            'Xóa câu hỏi?',
-            textAlign: TextAlign.center,
-          ),
+          title: const Text('Xóa câu hỏi?', textAlign: TextAlign.center),
           content: Text(
             'Bạn có chắc chắn muốn xóa câu hỏi:\n\n'
             '“${question.question}”',
@@ -835,9 +723,7 @@ class _AdminQuestionScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              icon: const Icon(
-                Icons.delete_outline_rounded,
-              ),
+              icon: const Icon(Icons.delete_outline_rounded),
               label: const Text('Xóa'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -888,18 +774,14 @@ class _AdminQuestionScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể xóa câu hỏi: $error',
-          ),
+          content: Text('Không thể xóa câu hỏi: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Color _getDifficultyColor(
-    String difficulty,
-  ) {
+  Color _getDifficultyColor(String difficulty) {
     switch (difficulty.trim().toLowerCase()) {
       case 'hard':
         return Colors.red;
@@ -913,14 +795,10 @@ class _AdminQuestionScreenState
     }
   }
 
-  Widget _buildQuestionCard(
-    QuizQuestion question,
-  ) {
-    final bool isProcessing =
-        _processingQuestionId == question.id;
+  Widget _buildQuestionCard(QuizQuestion question) {
+    final bool isProcessing = _processingQuestionId == question.id;
 
-    final Color difficultyColor =
-        _getDifficultyColor(question.difficulty);
+    final Color difficultyColor = _getDifficultyColor(question.difficulty);
 
     final Color statusColor = question.isActive
         ? const Color(0xFF2F9E44)
@@ -932,9 +810,7 @@ class _AdminQuestionScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(17),
@@ -942,18 +818,15 @@ class _AdminQuestionScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 48,
                   height: 48,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59F00)
-                        .withValues(alpha: 0.12),
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    color: const Color(0xFFF59F00).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
                     Icons.quiz_rounded,
@@ -985,9 +858,7 @@ class _AdminQuestionScreenState
                   color: difficultyColor,
                 ),
                 _QuestionLabel(
-                  text: question.isActive
-                      ? 'Hoạt động'
-                      : 'Đang ẩn',
+                  text: question.isActive ? 'Hoạt động' : 'Đang ẩn',
                   color: statusColor,
                 ),
                 _QuestionLabel(
@@ -997,33 +868,20 @@ class _AdminQuestionScreenState
               ],
             ),
             const SizedBox(height: 14),
-            for (
-              int index = 0;
-              index < question.options.length;
-              index++
-            )
+            for (int index = 0; index < question.options.length; index++)
               Container(
                 width: double.infinity,
-                margin: const EdgeInsets.only(
-                  bottom: 8,
-                ),
+                margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(11),
                 decoration: BoxDecoration(
-                  color:
-                      index == question.correctAnswerIndex
-                          ? const Color(0xFF2F9E44)
-                              .withValues(alpha: 0.09)
-                          : Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(11),
+                  color: index == question.correctAnswerIndex
+                      ? const Color(0xFF2F9E44).withValues(alpha: 0.09)
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(11),
                   border: Border.all(
-                    color:
-                        index == question.correctAnswerIndex
-                            ? const Color(0xFF2F9E44)
-                                .withValues(alpha: 0.30)
-                            : Theme.of(context).colorScheme.outlineVariant,
+                    color: index == question.correctAnswerIndex
+                        ? const Color(0xFF2F9E44).withValues(alpha: 0.30)
+                        : Theme.of(context).colorScheme.outlineVariant,
                   ),
                 ),
                 child: Row(
@@ -1033,13 +891,11 @@ class _AdminQuestionScreenState
                       height: 29,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: index ==
-                                question
-                                    .correctAnswerIndex
+                        color: index == question.correctAnswerIndex
                             ? const Color(0xFF2F9E44)
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
+                            : Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
                       child: Text(
@@ -1047,9 +903,7 @@ class _AdminQuestionScreenState
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: index ==
-                                  question
-                                      .correctAnswerIndex
+                          color: index == question.correctAnswerIndex
                               ? Colors.white
                               : Theme.of(context).colorScheme.onSurface,
                         ),
@@ -1065,8 +919,7 @@ class _AdminQuestionScreenState
                         ),
                       ),
                     ),
-                    if (index ==
-                        question.correctAnswerIndex)
+                    if (index == question.correctAnswerIndex)
                       const Icon(
                         Icons.check_circle_rounded,
                         color: Color(0xFF2F9E44),
@@ -1075,18 +928,14 @@ class _AdminQuestionScreenState
                   ],
                 ),
               ),
-            if (question.explanation
-                .trim()
-                .isNotEmpty) ...[
+            if (question.explanation.trim().isNotEmpty) ...[
               const SizedBox(height: 7),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59F00)
-                      .withValues(alpha: 0.07),
-                  borderRadius:
-                      BorderRadius.circular(11),
+                  color: const Color(0xFFF59F00).withValues(alpha: 0.07),
+                  borderRadius: BorderRadius.circular(11),
                 ),
                 child: Text(
                   'Giải thích: ${question.explanation}',
@@ -1117,26 +966,21 @@ class _AdminQuestionScreenState
                   )
                 else ...[
                   IconButton(
-                    tooltip: question.isActive
-                        ? 'Ẩn câu hỏi'
-                        : 'Hiện câu hỏi',
+                    tooltip: question.isActive ? 'Ẩn câu hỏi' : 'Hiện câu hỏi',
                     onPressed: () {
                       _updateQuestionStatus(question);
                     },
                     icon: Icon(
                       question.isActive
                           ? Icons.visibility_rounded
-                          : Icons
-                              .visibility_off_rounded,
+                          : Icons.visibility_off_rounded,
                       color: statusColor,
                     ),
                   ),
                   IconButton(
                     tooltip: 'Chỉnh sửa',
                     onPressed: () {
-                      _showQuestionForm(
-                        question: question,
-                      );
+                      _showQuestionForm(question: question);
                     },
                     icon: const Icon(
                       Icons.edit_outlined,
@@ -1171,23 +1015,15 @@ class _AdminQuestionScreenState
         isExpanded: true,
         decoration: const InputDecoration(
           labelText: 'Chọn bài học',
-          prefixIcon: Icon(
-            Icons.menu_book_rounded,
-          ),
+          prefixIcon: Icon(Icons.menu_book_rounded),
         ),
-        items: _lessons.map(
-          (Lesson lesson) {
-            return DropdownMenuItem<String>(
-              value: lesson.id,
-              child: Text(
-                lesson.title,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          },
-        ).toList(),
-        onChanged:
-            _isLoadingQuestions ? null : _selectLesson,
+        items: _lessons.map((Lesson lesson) {
+          return DropdownMenuItem<String>(
+            value: lesson.id,
+            child: Text(lesson.title, overflow: TextOverflow.ellipsis),
+          );
+        }).toList(),
+        onChanged: _isLoadingQuestions ? null : _selectLesson,
       ),
     );
   }
@@ -1197,9 +1033,7 @@ class _AdminQuestionScreenState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            color: Color(0xFFF59F00),
-          ),
+          const CircularProgressIndicator(color: Color(0xFFF59F00)),
           const SizedBox(height: 18),
           Text(
             message,
@@ -1232,9 +1066,7 @@ class _AdminQuestionScreenState
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: _loadLessons,
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('Thử lại'),
             ),
           ],
@@ -1250,18 +1082,11 @@ class _AdminQuestionScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.quiz_outlined,
-              color: Color(0xFFF59F00),
-              size: 68,
-            ),
+            const Icon(Icons.quiz_outlined, color: Color(0xFFF59F00), size: 68),
             const SizedBox(height: 18),
             const Text(
               'Chưa có câu hỏi',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -1269,19 +1094,14 @@ class _AdminQuestionScreenState
               icon: const Icon(Icons.add_rounded),
               label: const Text('Thêm câu hỏi'),
               style: FilledButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFFF59F00),
+                backgroundColor: const Color(0xFFF59F00),
               ),
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
               onPressed: _createSampleQuestions,
-              icon: const Icon(
-                Icons.auto_awesome_rounded,
-              ),
-              label: const Text(
-                'Tạo câu hỏi mẫu',
-              ),
+              icon: const Icon(Icons.auto_awesome_rounded),
+              label: const Text('Tạo câu hỏi mẫu'),
             ),
           ],
         ),
@@ -1294,14 +1114,18 @@ class _AdminQuestionScreenState
       color: const Color(0xFFF59F00),
       onRefresh: _refreshData,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          20,
-          20,
-          20,
-          100,
-        ),
-        children:
-            _questions.map(_buildQuestionCard).toList(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _questions.map(_buildQuestionCard).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1312,9 +1136,7 @@ class _AdminQuestionScreenState
       appBar: AppBar(
         title: const Text(
           'Quản lý câu hỏi',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFFF59F00),
         foregroundColor: Colors.white,
@@ -1322,51 +1144,38 @@ class _AdminQuestionScreenState
           IconButton(
             tooltip: 'Làm mới',
             onPressed: _refreshData,
-            icon: const Icon(
-              Icons.refresh_rounded,
-            ),
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
       floatingActionButton: _selectedLesson == null
           ? null
           : FloatingActionButton.extended(
-              onPressed: _isAddingQuestion
-                  ? null
-                  : _addQuestion,
-              backgroundColor:
-                  const Color(0xFFF59F00),
+              onPressed: _isAddingQuestion ? null : _addQuestion,
+              backgroundColor: const Color(0xFFF59F00),
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add_rounded),
               label: const Text('Thêm câu hỏi'),
             ),
       body: SafeArea(
         child: _isLoadingLessons
-            ? _buildLoadingView(
-                'Đang tải bài học...',
-              )
+            ? _buildLoadingView('Đang tải bài học...')
             : _errorMessage != null
-                ? _buildErrorView()
-                : _lessons.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Chưa có bài học để quản lý câu hỏi.',
-                        ),
-                      )
-                    : Column(
-                        children: [
-                          _buildLessonSelector(),
-                          Expanded(
-                            child: _isLoadingQuestions
-                                ? _buildLoadingView(
-                                    'Đang tải câu hỏi...',
-                                  )
-                                : _questions.isEmpty
-                                    ? _buildEmptyView()
-                                    : _buildQuestionList(),
-                          ),
-                        ],
-                      ),
+            ? _buildErrorView()
+            : _lessons.isEmpty
+            ? const Center(child: Text('Chưa có bài học để quản lý câu hỏi.'))
+            : Column(
+                children: [
+                  _buildLessonSelector(),
+                  Expanded(
+                    child: _isLoadingQuestions
+                        ? _buildLoadingView('Đang tải câu hỏi...')
+                        : _questions.isEmpty
+                        ? _buildEmptyView()
+                        : _buildQuestionList(),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -1376,18 +1185,12 @@ class _QuestionLabel extends StatelessWidget {
   final String text;
   final Color color;
 
-  const _QuestionLabel({
-    required this.text,
-    required this.color,
-  });
+  const _QuestionLabel({required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),

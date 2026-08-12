@@ -8,12 +8,10 @@ class AdminLessonScreen extends StatefulWidget {
   const AdminLessonScreen({super.key});
 
   @override
-  State<AdminLessonScreen> createState() =>
-      _AdminLessonScreenState();
+  State<AdminLessonScreen> createState() => _AdminLessonScreenState();
 }
 
-class _AdminLessonScreenState
-    extends State<AdminLessonScreen> {
+class _AdminLessonScreenState extends State<AdminLessonScreen> {
   final LessonService _lessonService = LessonService();
   final AdminService _adminService = AdminService();
 
@@ -29,13 +27,10 @@ class _AdminLessonScreenState
   }
 
   Future<List<Lesson>> _loadLessons() async {
-    final bool isAdmin =
-        await _adminService.isCurrentUserAdmin();
+    final bool isAdmin = await _adminService.isCurrentUserAdmin();
 
     if (!isAdmin) {
-      throw StateError(
-        'Tài khoản hiện tại không có quyền quản trị.',
-      );
+      throw StateError('Tài khoản hiện tại không có quyền quản trị.');
     }
 
     return _lessonService.getAllLessons();
@@ -92,468 +87,393 @@ class _AdminLessonScreenState
     return Color(colorValue);
   }
 
-  Future<void> _showLessonForm({
-    Lesson? lesson,
-  }) async {
+  Future<void> _showLessonForm({Lesson? lesson}) async {
     final bool isEditing = lesson != null;
 
-    final TextEditingController titleController =
-        TextEditingController(
+    final TextEditingController titleController = TextEditingController(
       text: lesson?.title ?? '',
     );
 
-    final TextEditingController topicController =
-        TextEditingController(
+    final TextEditingController topicController = TextEditingController(
       text: lesson?.topic ?? '',
     );
 
-    final TextEditingController descriptionController =
-        TextEditingController(
+    final TextEditingController descriptionController = TextEditingController(
       text: lesson?.description ?? '',
     );
 
-    final TextEditingController orderController =
-        TextEditingController(
+    final TextEditingController orderController = TextEditingController(
       text: lesson?.order.toString() ?? '',
     );
 
-    String selectedIcon =
-        lesson?.icon ?? 'menu_book';
+    String selectedIcon = lesson?.icon ?? 'menu_book';
 
-    int selectedColor =
-        lesson?.color ?? 0xFF3B5BDB;
+    int selectedColor = lesson?.color ?? 0xFF3B5BDB;
 
     bool isActive = lesson?.isActive ?? true;
     bool isSaving = false;
 
-    final GlobalKey<FormState> formKey =
-        GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-    final Lesson? savedLesson =
-        await showDialog<Lesson>(
+    final Lesson? savedLesson = await showDialog<Lesson>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveLesson() async {
-              if (!formKey.currentState!.validate() ||
-                  isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveLesson() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final int order =
-                  int.tryParse(orderController.text.trim()) ??
-                      0;
+                  final int order =
+                      int.tryParse(orderController.text.trim()) ?? 0;
 
-              final Lesson lessonToSave = Lesson(
-                id: lesson?.id ?? '',
-                title: titleController.text.trim(),
-                topic: topicController.text.trim(),
-                description:
-                    descriptionController.text.trim(),
-                icon: selectedIcon,
-                color: selectedColor,
-                order: order,
-                isActive: isActive,
-                createdAt: lesson?.createdAt,
-                updatedAt: lesson?.updatedAt,
-              );
-
-              try {
-                await _adminService.requireAdmin();
-
-                if (isEditing) {
-                  await _lessonService.updateLesson(
-                    lessonToSave,
+                  final Lesson lessonToSave = Lesson(
+                    id: lesson?.id ?? '',
+                    title: titleController.text.trim(),
+                    topic: topicController.text.trim(),
+                    description: descriptionController.text.trim(),
+                    icon: selectedIcon,
+                    color: selectedColor,
+                    order: order,
+                    isActive: isActive,
+                    createdAt: lesson?.createdAt,
+                    updatedAt: lesson?.updatedAt,
                   );
-                } else {
-                  await _lessonService.addLesson(
-                    lessonToSave,
-                  );
+
+                  try {
+                    await _adminService.requireAdmin();
+
+                    if (isEditing) {
+                      await _lessonService.updateLesson(lessonToSave);
+                    } else {
+                      await _lessonService.addLesson(lessonToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(lessonToSave);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu bài học: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(
-                  lessonToSave,
-                );
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu bài học: $error',
-                    ),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing ? 'Chỉnh sửa bài học' : 'Thêm bài học mới',
                   ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                isEditing
-                    ? 'Chỉnh sửa bài học'
-                    : 'Thêm bài học mới',
-              ),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: titleController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Tên bài học',
-                            prefixIcon: Icon(
-                              Icons.title_rounded,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập tên bài học';
-                            }
-
-                            if (value.trim().length < 2) {
-                              return 'Tên bài học quá ngắn';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-
-                        TextFormField(
-                          controller: topicController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Chủ đề',
-                            prefixIcon: Icon(
-                              Icons.category_outlined,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập chủ đề';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-
-                        TextFormField(
-                          controller:
-                              descriptionController,
-                          enabled: !isSaving,
-                          minLines: 3,
-                          maxLines: 5,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Mô tả bài học',
-                            alignLabelWithHint: true,
-                            prefixIcon: Padding(
-                              padding:
-                                  EdgeInsets.only(
-                                bottom: 50,
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: titleController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Tên bài học',
+                                prefixIcon: Icon(Icons.title_rounded),
                               ),
-                              child: Icon(
-                                Icons.description_outlined,
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập tên bài học';
+                                }
+
+                                if (value.trim().length < 2) {
+                                  return 'Tên bài học quá ngắn';
+                                }
+
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+
+                            TextFormField(
+                              controller: topicController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Chủ đề',
+                                prefixIcon: Icon(Icons.category_outlined),
                               ),
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập mô tả';
-                            }
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập chủ đề';
+                                }
 
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
 
-                        TextFormField(
-                          controller: orderController,
-                          enabled: !isSaving,
-                          keyboardType:
-                              TextInputType.number,
-                          textInputAction:
-                              TextInputAction.done,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Thứ tự hiển thị',
-                            prefixIcon: Icon(
-                              Icons.format_list_numbered,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập thứ tự';
-                            }
-
-                            final int? order =
-                                int.tryParse(
-                              value.trim(),
-                            );
-
-                            if (order == null ||
-                                order < 0) {
-                              return 'Thứ tự phải là số từ 0 trở lên';
-                            }
-
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-
-                        DropdownButtonFormField<String>(
-                          initialValue: selectedIcon,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Biểu tượng',
-                            prefixIcon: Icon(
-                              Icons.emoji_symbols_rounded,
-                            ),
-                          ),
-                          items: const [
-                            DropdownMenuItem<String>(
-                              value: 'menu_book',
-                              child: Text('Sách'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'waving_hand',
-                              child: Text('Chào hỏi'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'family',
-                              child: Text('Gia đình'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'school',
-                              child: Text('Trường học'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'restaurant',
-                              child: Text(
-                                'Đồ ăn và thức uống',
+                            TextFormField(
+                              controller: descriptionController,
+                              enabled: !isSaving,
+                              minLines: 3,
+                              maxLines: 5,
+                              decoration: const InputDecoration(
+                                labelText: 'Mô tả bài học',
+                                alignLabelWithHint: true,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(bottom: 50),
+                                  child: Icon(Icons.description_outlined),
+                                ),
                               ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập mô tả';
+                                }
+
+                                return null;
+                              },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'schedule',
-                              child: Text(
-                                'Hoạt động hằng ngày',
+                            const SizedBox(height: 15),
+
+                            TextFormField(
+                              controller: orderController,
+                              enabled: !isSaving,
+                              keyboardType: TextInputType.number,
+                              textInputAction: TextInputAction.done,
+                              decoration: const InputDecoration(
+                                labelText: 'Thứ tự hiển thị',
+                                prefixIcon: Icon(Icons.format_list_numbered),
                               ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập thứ tự';
+                                }
+
+                                final int? order = int.tryParse(value.trim());
+
+                                if (order == null || order < 0) {
+                                  return 'Thứ tự phải là số từ 0 trở lên';
+                                }
+
+                                return null;
+                              },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'travel',
-                              child: Text('Du lịch'),
+                            const SizedBox(height: 15),
+
+                            DropdownButtonFormField<String>(
+                              initialValue: selectedIcon,
+                              decoration: const InputDecoration(
+                                labelText: 'Biểu tượng',
+                                prefixIcon: Icon(Icons.emoji_symbols_rounded),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'menu_book',
+                                  child: Text('Sách'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'waving_hand',
+                                  child: Text('Chào hỏi'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'family',
+                                  child: Text('Gia đình'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'school',
+                                  child: Text('Trường học'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'restaurant',
+                                  child: Text('Đồ ăn và thức uống'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'schedule',
+                                  child: Text('Hoạt động hằng ngày'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'travel',
+                                  child: Text('Du lịch'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'work',
+                                  child: Text('Công việc'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'shopping',
+                                  child: Text('Mua sắm'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'health',
+                                  child: Text('Sức khỏe'),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (String? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+
+                                      setDialogState(() {
+                                        selectedIcon = value;
+                                      });
+                                    },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'work',
-                              child: Text('Công việc'),
+                            const SizedBox(height: 15),
+
+                            DropdownButtonFormField<int>(
+                              initialValue: selectedColor,
+                              decoration: const InputDecoration(
+                                labelText: 'Màu sắc',
+                                prefixIcon: Icon(Icons.palette_outlined),
+                              ),
+                              items: const [
+                                DropdownMenuItem<int>(
+                                  value: 0xFF3B5BDB,
+                                  child: _ColorOption(
+                                    color: Color(0xFF3B5BDB),
+                                    label: 'Xanh dương',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFF2F9E44,
+                                  child: _ColorOption(
+                                    color: Color(0xFF2F9E44),
+                                    label: 'Xanh lá',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFFF59F00,
+                                  child: _ColorOption(
+                                    color: Color(0xFFF59F00),
+                                    label: 'Cam',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFFE64980,
+                                  child: _ColorOption(
+                                    color: Color(0xFFE64980),
+                                    label: 'Hồng',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFF9C36B5,
+                                  child: _ColorOption(
+                                    color: Color(0xFF9C36B5),
+                                    label: 'Tím',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFF0C8599,
+                                  child: _ColorOption(
+                                    color: Color(0xFF0C8599),
+                                    label: 'Xanh ngọc',
+                                  ),
+                                ),
+                                DropdownMenuItem<int>(
+                                  value: 0xFFE03131,
+                                  child: _ColorOption(
+                                    color: Color(0xFFE03131),
+                                    label: 'Đỏ',
+                                  ),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (int? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+
+                                      setDialogState(() {
+                                        selectedColor = value;
+                                      });
+                                    },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'shopping',
-                              child: Text('Mua sắm'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'health',
-                              child: Text('Sức khỏe'),
+                            const SizedBox(height: 10),
+
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Bài học đang hoạt động'),
+                              subtitle: Text(
+                                isActive
+                                    ? 'Học viên có thể nhìn thấy bài học'
+                                    : 'Bài học đang bị ẩn khỏi học viên',
+                              ),
+                              value: isActive,
+                              activeThumbColor: const Color(0xFF3B5BDB),
+                              onChanged: isSaving
+                                  ? null
+                                  : (bool value) {
+                                      setDialogState(() {
+                                        isActive = value;
+                                      });
+                                    },
                             ),
                           ],
-                          onChanged: isSaving
-                              ? null
-                              : (String? value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-
-                                  setDialogState(() {
-                                    selectedIcon = value;
-                                  });
-                                },
                         ),
-                        const SizedBox(height: 15),
-
-                        DropdownButtonFormField<int>(
-                          initialValue: selectedColor,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Màu sắc',
-                            prefixIcon: Icon(
-                              Icons.palette_outlined,
-                            ),
-                          ),
-                          items: const [
-                            DropdownMenuItem<int>(
-                              value: 0xFF3B5BDB,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFF3B5BDB),
-                                label: 'Xanh dương',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFF2F9E44,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFF2F9E44),
-                                label: 'Xanh lá',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFFF59F00,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFFF59F00),
-                                label: 'Cam',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFFE64980,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFFE64980),
-                                label: 'Hồng',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFF9C36B5,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFF9C36B5),
-                                label: 'Tím',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFF0C8599,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFF0C8599),
-                                label: 'Xanh ngọc',
-                              ),
-                            ),
-                            DropdownMenuItem<int>(
-                              value: 0xFFE03131,
-                              child: _ColorOption(
-                                color:
-                                    Color(0xFFE03131),
-                                label: 'Đỏ',
-                              ),
-                            ),
-                          ],
-                          onChanged: isSaving
-                              ? null
-                              : (int? value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-
-                                  setDialogState(() {
-                                    selectedColor = value;
-                                  });
-                                },
-                        ),
-                        const SizedBox(height: 10),
-
-                        SwitchListTile(
-                          contentPadding:
-                              EdgeInsets.zero,
-                          title: const Text(
-                            'Bài học đang hoạt động',
-                          ),
-                          subtitle: Text(
-                            isActive
-                                ? 'Học viên có thể nhìn thấy bài học'
-                                : 'Bài học đang bị ẩn khỏi học viên',
-                          ),
-                          value: isActive,
-                          activeThumbColor:
-                              const Color(0xFF3B5BDB),
-                          onChanged: isSaving
-                              ? null
-                              : (bool value) {
-                                  setDialogState(() {
-                                    isActive = value;
-                                  });
-                                },
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext)
-                              .pop();
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed:
-                      isSaving ? null : saveLesson,
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child:
-                              CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop();
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveLesson,
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm bài học',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -601,10 +521,7 @@ class _AdminLessonScreenState
     });
   }
 
-  Future<void> _updateLessonStatus(
-    Lesson lesson,
-    bool newStatus,
-  ) async {
+  Future<void> _updateLessonStatus(Lesson lesson, bool newStatus) async {
     if (_processingLessonId != null) {
       return;
     }
@@ -650,18 +567,14 @@ class _AdminLessonScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể cập nhật trạng thái: $error',
-          ),
+          content: Text('Không thể cập nhật trạng thái: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _confirmDeleteLesson(
-    Lesson lesson,
-  ) async {
+  Future<void> _confirmDeleteLesson(Lesson lesson) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -671,10 +584,7 @@ class _AdminLessonScreenState
             color: Colors.red,
             size: 50,
           ),
-          title: const Text(
-            'Xóa bài học?',
-            textAlign: TextAlign.center,
-          ),
+          title: const Text('Xóa bài học?', textAlign: TextAlign.center),
           content: Text(
             'Bạn có chắc chắn muốn xóa bài học '
             '"${lesson.title}" không?\n\n'
@@ -695,9 +605,7 @@ class _AdminLessonScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              icon: const Icon(
-                Icons.delete_outline_rounded,
-              ),
+              icon: const Icon(Icons.delete_outline_rounded),
               label: const Text('Xóa bài học'),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -731,9 +639,7 @@ class _AdminLessonScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Đã xóa bài học "${lesson.title}".',
-          ),
+          content: Text('Đã xóa bài học "${lesson.title}".'),
           backgroundColor: Colors.green,
         ),
       );
@@ -750,9 +656,7 @@ class _AdminLessonScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể xóa bài học: $error',
-          ),
+          content: Text('Không thể xóa bài học: $error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -760,11 +664,9 @@ class _AdminLessonScreenState
   }
 
   Widget _buildLessonCard(Lesson lesson) {
-    final Color lessonColor =
-        _getLessonColor(lesson.color);
+    final Color lessonColor = _getLessonColor(lesson.color);
 
-    final bool isProcessing =
-        _processingLessonId == lesson.id;
+    final bool isProcessing = _processingLessonId == lesson.id;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
@@ -772,28 +674,22 @@ class _AdminLessonScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(17),
         child: Column(
           children: [
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 56,
                   height: 56,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: lessonColor.withValues(
-                      alpha: 0.12,
-                    ),
-                    borderRadius:
-                        BorderRadius.circular(15),
+                    color: lessonColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Icon(
                     _getLessonIcon(lesson.icon),
@@ -804,8 +700,7 @@ class _AdminLessonScreenState
                 const SizedBox(width: 15),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -814,17 +709,13 @@ class _AdminLessonScreenState
                               lesson.title,
                               style: TextStyle(
                                 fontSize: 17,
-                                fontWeight:
-                                    FontWeight.bold,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
                           Container(
-                            padding:
-                                const EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 9,
                               vertical: 5,
                             ),
@@ -832,32 +723,20 @@ class _AdminLessonScreenState
                               color: lesson.isActive
                                   ? const Color(
                                       0xFF2F9E44,
-                                    ).withValues(
-                                      alpha: 0.11,
-                                    )
-                                  : Colors.grey.withValues(
-                                      alpha: 0.12,
-                                    ),
-                              borderRadius:
-                                  BorderRadius.circular(
-                                20,
-                              ),
+                                    ).withValues(alpha: 0.11)
+                                  : Colors.grey.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              lesson.isActive
-                                  ? 'Hoạt động'
-                                  : 'Đang ẩn',
+                              lesson.isActive ? 'Hoạt động' : 'Đang ẩn',
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight:
-                                    FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                                 color: lesson.isActive
-                                    ? const Color(
-                                        0xFF2F9E44,
-                                      )
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    ? const Color(0xFF2F9E44)
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ),
@@ -918,20 +797,14 @@ class _AdminLessonScreenState
                   )
                 else ...[
                   IconButton(
-                    tooltip: lesson.isActive
-                        ? 'Ẩn bài học'
-                        : 'Bật bài học',
+                    tooltip: lesson.isActive ? 'Ẩn bài học' : 'Bật bài học',
                     onPressed: () {
-                      _updateLessonStatus(
-                        lesson,
-                        !lesson.isActive,
-                      );
+                      _updateLessonStatus(lesson, !lesson.isActive);
                     },
                     icon: Icon(
                       lesson.isActive
                           ? Icons.visibility_rounded
-                          : Icons
-                              .visibility_off_rounded,
+                          : Icons.visibility_off_rounded,
                       color: lesson.isActive
                           ? const Color(0xFF2F9E44)
                           : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -940,9 +813,7 @@ class _AdminLessonScreenState
                   IconButton(
                     tooltip: 'Chỉnh sửa',
                     onPressed: () {
-                      _showLessonForm(
-                        lesson: lesson,
-                      );
+                      _showLessonForm(lesson: lesson);
                     },
                     icon: const Icon(
                       Icons.edit_outlined,
@@ -975,9 +846,7 @@ class _AdminLessonScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(
-              color: Color(0xFF3B5BDB),
-            ),
+            const CircularProgressIndicator(color: Color(0xFF3B5BDB)),
             const SizedBox(height: 18),
             Text(
               'Đang tải danh sách bài học...',
@@ -1025,9 +894,7 @@ class _AdminLessonScreenState
             const SizedBox(height: 22),
             FilledButton.icon(
               onPressed: _refreshLessons,
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('Thử lại'),
             ),
           ],
@@ -1080,61 +947,61 @@ class _AdminLessonScreenState
 
   Widget _buildLessonList(List<Lesson> lessons) {
     final int activeLessons = lessons
-        .where(
-          (Lesson lesson) => lesson.isActive,
-        )
+        .where((Lesson lesson) => lesson.isActive)
         .length;
 
     return RefreshIndicator(
       color: const Color(0xFF3B5BDB),
       onRefresh: _refreshLessons,
       child: ListView(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          20,
-          20,
-          20,
-          100,
-        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
         children: [
-          Container(
-            padding: const EdgeInsets.all(17),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3B5BDB)
-                  .withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(17),
-              border: Border.all(
-                color: const Color(0xFF3B5BDB)
-                    .withValues(alpha: 0.15),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.analytics_outlined,
-                  color: Color(0xFF3B5BDB),
-                  size: 32,
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    '${lessons.length} bài học • '
-                    '$activeLessons đang hoạt động • '
-                    '${lessons.length - activeLessons} đang ẩn',
-                    style: TextStyle(
-                      fontSize: 14,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(17),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3B5BDB).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(17),
+                      border: Border.all(
+                        color: const Color(0xFF3B5BDB).withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.analytics_outlined,
+                          color: Color(0xFF3B5BDB),
+                          size: 32,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            '${lessons.length} bài học • '
+                            '$activeLessons đang hoạt động • '
+                            '${lessons.length - activeLessons} đang ẩn',
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.4,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  ...lessons.map(_buildLessonCard),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 20),
-          ...lessons.map(_buildLessonCard),
         ],
       ),
     );
@@ -1146,9 +1013,7 @@ class _AdminLessonScreenState
       appBar: AppBar(
         title: const Text(
           'Quản lý bài học',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF3B5BDB),
         foregroundColor: Colors.white,
@@ -1157,16 +1022,12 @@ class _AdminLessonScreenState
           IconButton(
             tooltip: 'Làm mới',
             onPressed: _refreshLessons,
-            icon: const Icon(
-              Icons.refresh_rounded,
-            ),
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _isAddingLesson
-            ? null
-            : _addLesson,
+        onPressed: _isAddingLesson ? null : _addLesson,
         backgroundColor: const Color(0xFF3B5BDB),
         foregroundColor: Colors.white,
         icon: _isAddingLesson
@@ -1179,39 +1040,29 @@ class _AdminLessonScreenState
                 ),
               )
             : const Icon(Icons.add_rounded),
-        label: Text(
-          _isAddingLesson
-              ? 'Đang xử lý...'
-              : 'Thêm bài học',
-        ),
+        label: Text(_isAddingLesson ? 'Đang xử lý...' : 'Thêm bài học'),
       ),
       body: SafeArea(
         child: FutureBuilder<List<Lesson>>(
           future: _lessonsFuture,
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<List<Lesson>> snapshot,
-          ) {
-            if (snapshot.connectionState ==
-                ConnectionState.waiting) {
-              return _buildLoadingView();
-            }
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Lesson>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return _buildLoadingView();
+                }
 
-            if (snapshot.hasError) {
-              return _buildErrorView(
-                snapshot.error!,
-              );
-            }
+                if (snapshot.hasError) {
+                  return _buildErrorView(snapshot.error!);
+                }
 
-            final List<Lesson> lessons =
-                snapshot.data ?? <Lesson>[];
+                final List<Lesson> lessons = snapshot.data ?? <Lesson>[];
 
-            if (lessons.isEmpty) {
-              return _buildEmptyView();
-            }
+                if (lessons.isEmpty) {
+                  return _buildEmptyView();
+                }
 
-            return _buildLessonList(lessons);
-          },
+                return _buildLessonList(lessons);
+              },
         ),
       ),
     );
@@ -1222,10 +1073,7 @@ class _ColorOption extends StatelessWidget {
   final Color color;
   final String label;
 
-  const _ColorOption({
-    required this.color,
-    required this.label,
-  });
+  const _ColorOption({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -1234,10 +1082,7 @@ class _ColorOption extends StatelessWidget {
         Container(
           width: 19,
           height: 19,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 10),
         Text(label),

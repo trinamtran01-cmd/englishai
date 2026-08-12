@@ -7,16 +7,13 @@ class AdminUserScreen extends StatefulWidget {
   const AdminUserScreen({super.key});
 
   @override
-  State<AdminUserScreen> createState() =>
-      _AdminUserScreenState();
+  State<AdminUserScreen> createState() => _AdminUserScreenState();
 }
 
-class _AdminUserScreenState
-    extends State<AdminUserScreen> {
+class _AdminUserScreenState extends State<AdminUserScreen> {
   final AdminService _adminService = AdminService();
 
-  final TextEditingController _searchController =
-      TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   String _selectedRoleFilter = 'all';
   String _searchKeyword = '';
@@ -26,24 +23,19 @@ class _AdminUserScreenState
   void initState() {
     super.initState();
 
-    _searchController.addListener(
-      _handleSearchChanged,
-    );
+    _searchController.addListener(_handleSearchChanged);
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(
-      _handleSearchChanged,
-    );
+    _searchController.removeListener(_handleSearchChanged);
 
     _searchController.dispose();
     super.dispose();
   }
 
   void _handleSearchChanged() {
-    final String keyword =
-        _searchController.text.trim().toLowerCase();
+    final String keyword = _searchController.text.trim().toLowerCase();
 
     if (keyword == _searchKeyword) {
       return;
@@ -54,93 +46,70 @@ class _AdminUserScreenState
     });
   }
 
-  String _getUserRole(
-    Map<String, dynamic> user,
-  ) {
+  String _getUserRole(Map<String, dynamic> user) {
     final String role =
-        user['role']?.toString().trim().toLowerCase() ??
-            'student';
+        user['role']?.toString().trim().toLowerCase() ?? 'student';
 
     return role == 'admin' ? 'admin' : 'student';
   }
 
-  String _getUserName(
-    Map<String, dynamic> user,
-  ) {
-    final String name =
-        user['name']?.toString().trim() ?? '';
+  String _getUserName(Map<String, dynamic> user) {
+    final String name = user['name']?.toString().trim() ?? '';
 
     return name.isEmpty ? 'Chưa cập nhật tên' : name;
   }
 
-  String _getUserEmail(
-    Map<String, dynamic> user,
-  ) {
-    final String email =
-        user['email']?.toString().trim() ?? '';
+  String _getUserEmail(Map<String, dynamic> user) {
+    final String email = user['email']?.toString().trim() ?? '';
 
     return email.isEmpty ? 'Chưa có email' : email;
   }
 
-  String _getAvatarLetter(
-    Map<String, dynamic> user,
-  ) {
+  String _getAvatarLetter(Map<String, dynamic> user) {
     final String name = _getUserName(user);
 
-    if (name.isNotEmpty &&
-        name != 'Chưa cập nhật tên') {
+    if (name.isNotEmpty && name != 'Chưa cập nhật tên') {
       return name.substring(0, 1).toUpperCase();
     }
 
     final String email = _getUserEmail(user);
 
-    if (email.isNotEmpty &&
-        email != 'Chưa có email') {
+    if (email.isNotEmpty && email != 'Chưa có email') {
       return email.substring(0, 1).toUpperCase();
     }
 
     return 'U';
   }
 
-  List<Map<String, dynamic>> _filterUsers(
-    List<Map<String, dynamic>> users,
-  ) {
-    final List<Map<String, dynamic>> filteredUsers =
-        users.where(
-      (Map<String, dynamic> user) {
-        final String role = _getUserRole(user);
-        final String name =
-            _getUserName(user).toLowerCase();
-        final String email =
-            _getUserEmail(user).toLowerCase();
+  List<Map<String, dynamic>> _filterUsers(List<Map<String, dynamic>> users) {
+    final List<Map<String, dynamic>> filteredUsers = users.where((
+      Map<String, dynamic> user,
+    ) {
+      final String role = _getUserRole(user);
+      final String name = _getUserName(user).toLowerCase();
+      final String email = _getUserEmail(user).toLowerCase();
 
-        final bool matchesRole =
-            _selectedRoleFilter == 'all' ||
-                role == _selectedRoleFilter;
+      final bool matchesRole =
+          _selectedRoleFilter == 'all' || role == _selectedRoleFilter;
 
-        final bool matchesSearch =
-            _searchKeyword.isEmpty ||
-                name.contains(_searchKeyword) ||
-                email.contains(_searchKeyword);
+      final bool matchesSearch =
+          _searchKeyword.isEmpty ||
+          name.contains(_searchKeyword) ||
+          email.contains(_searchKeyword);
 
-        return matchesRole && matchesSearch;
-      },
-    ).toList();
+      return matchesRole && matchesSearch;
+    }).toList();
 
-    filteredUsers.sort(
-      (
-        Map<String, dynamic> firstUser,
-        Map<String, dynamic> secondUser,
-      ) {
-        final String firstName =
-            _getUserName(firstUser).toLowerCase();
+    filteredUsers.sort((
+      Map<String, dynamic> firstUser,
+      Map<String, dynamic> secondUser,
+    ) {
+      final String firstName = _getUserName(firstUser).toLowerCase();
 
-        final String secondName =
-            _getUserName(secondUser).toLowerCase();
+      final String secondName = _getUserName(secondUser).toLowerCase();
 
-        return firstName.compareTo(secondName);
-      },
-    );
+      return firstName.compareTo(secondName);
+    });
 
     return filteredUsers;
   }
@@ -149,23 +118,18 @@ class _AdminUserScreenState
     required Map<String, dynamic> user,
     required String newRole,
   }) async {
-    final String userId =
-        user['id']?.toString().trim() ?? '';
+    final String userId = user['id']?.toString().trim() ?? '';
 
-    if (userId.isEmpty ||
-        _processingUserId != null) {
+    if (userId.isEmpty || _processingUserId != null) {
       return;
     }
 
-    final String currentUserId =
-        FirebaseAuth.instance.currentUser?.uid ?? '';
+    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
     if (userId == currentUserId) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Bạn không thể tự thay đổi quyền của chính mình.',
-          ),
+          content: Text('Bạn không thể tự thay đổi quyền của chính mình.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -180,13 +144,9 @@ class _AdminUserScreenState
     }
 
     final String name = _getUserName(user);
-    final String roleLabel =
-        newRole == 'admin'
-            ? 'Quản trị viên'
-            : 'Học viên';
+    final String roleLabel = newRole == 'admin' ? 'Quản trị viên' : 'Học viên';
 
-    final bool? shouldChange =
-        await showDialog<bool>(
+    final bool? shouldChange = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
@@ -208,8 +168,7 @@ class _AdminUserScreenState
             '"$name" thành "$roleLabel" không?',
             textAlign: TextAlign.center,
           ),
-          actionsAlignment:
-              MainAxisAlignment.center,
+          actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () {
@@ -222,8 +181,7 @@ class _AdminUserScreenState
                 Navigator.of(dialogContext).pop(true);
               },
               style: FilledButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFF364FC7),
+                backgroundColor: const Color(0xFF364FC7),
                 foregroundColor: Colors.white,
               ),
               child: const Text('Xác nhận'),
@@ -242,10 +200,7 @@ class _AdminUserScreenState
     });
 
     try {
-      await _adminService.updateUserRole(
-        userId: userId,
-        role: newRole,
-      );
+      await _adminService.updateUserRole(userId: userId, role: newRole);
 
       if (!mounted) {
         return;
@@ -257,9 +212,7 @@ class _AdminUserScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Đã đặt tài khoản "$name" thành $roleLabel.',
-          ),
+          content: Text('Đã đặt tài khoản "$name" thành $roleLabel.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -274,36 +227,27 @@ class _AdminUserScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể thay đổi quyền tài khoản: $error',
-          ),
+          content: Text('Không thể thay đổi quyền tài khoản: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Widget _buildSummarySection(
-    List<Map<String, dynamic>> users,
-  ) {
-    final int totalAdmins = users.where(
-      (Map<String, dynamic> user) {
-        return _getUserRole(user) == 'admin';
-      },
-    ).length;
+  Widget _buildSummarySection(List<Map<String, dynamic>> users) {
+    final int totalAdmins = users.where((Map<String, dynamic> user) {
+      return _getUserRole(user) == 'admin';
+    }).length;
 
-    final int totalStudents =
-        users.length - totalAdmins;
+    final int totalStudents = users.length - totalAdmins;
 
     return Container(
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: const Color(0xFF0C8599)
-            .withValues(alpha: 0.08),
+        color: const Color(0xFF0C8599).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(17),
         border: Border.all(
-          color: const Color(0xFF0C8599)
-              .withValues(alpha: 0.16),
+          color: const Color(0xFF0C8599).withValues(alpha: 0.16),
         ),
       ),
       child: Row(
@@ -316,11 +260,7 @@ class _AdminUserScreenState
               color: const Color(0xFF0C8599),
             ),
           ),
-          Container(
-            width: 1,
-            height: 54,
-            color: const Color(0xFFE1E5F2),
-          ),
+          Container(width: 1, height: 54, color: const Color(0xFFE1E5F2)),
           Expanded(
             child: _buildSummaryItem(
               icon: Icons.school_rounded,
@@ -329,15 +269,10 @@ class _AdminUserScreenState
               color: const Color(0xFF2F9E44),
             ),
           ),
-          Container(
-            width: 1,
-            height: 54,
-            color: const Color(0xFFE1E5F2),
-          ),
+          Container(width: 1, height: 54, color: const Color(0xFFE1E5F2)),
           Expanded(
             child: _buildSummaryItem(
-              icon:
-                  Icons.admin_panel_settings_rounded,
+              icon: Icons.admin_panel_settings_rounded,
               value: totalAdmins.toString(),
               label: 'Quản trị',
               color: const Color(0xFF364FC7),
@@ -356,11 +291,7 @@ class _AdminUserScreenState
   }) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 24,
-        ),
+        Icon(icon, color: color, size: 24),
         const SizedBox(height: 7),
         Text(
           value,
@@ -391,9 +322,7 @@ class _AdminUserScreenState
           decoration: InputDecoration(
             labelText: 'Tìm kiếm tài khoản',
             hintText: 'Nhập họ tên hoặc email',
-            prefixIcon: const Icon(
-              Icons.search_rounded,
-            ),
+            prefixIcon: const Icon(Icons.search_rounded),
             suffixIcon: _searchKeyword.isEmpty
                 ? null
                 : IconButton(
@@ -401,9 +330,7 @@ class _AdminUserScreenState
                     onPressed: () {
                       _searchController.clear();
                     },
-                    icon: const Icon(
-                      Icons.clear_rounded,
-                    ),
+                    icon: const Icon(Icons.clear_rounded),
                   ),
           ),
         ),
@@ -412,19 +339,14 @@ class _AdminUserScreenState
           initialValue: _selectedRoleFilter,
           decoration: const InputDecoration(
             labelText: 'Lọc theo vai trò',
-            prefixIcon: Icon(
-              Icons.filter_list_rounded,
-            ),
+            prefixIcon: Icon(Icons.filter_list_rounded),
           ),
           items: const [
             DropdownMenuItem<String>(
               value: 'all',
               child: Text('Tất cả tài khoản'),
             ),
-            DropdownMenuItem<String>(
-              value: 'student',
-              child: Text('Học viên'),
-            ),
+            DropdownMenuItem<String>(value: 'student', child: Text('Học viên')),
             DropdownMenuItem<String>(
               value: 'admin',
               child: Text('Quản trị viên'),
@@ -444,25 +366,19 @@ class _AdminUserScreenState
     );
   }
 
-  Widget _buildUserCard(
-    Map<String, dynamic> user,
-  ) {
-    final String userId =
-        user['id']?.toString().trim() ?? '';
+  Widget _buildUserCard(Map<String, dynamic> user) {
+    final String userId = user['id']?.toString().trim() ?? '';
 
-    final String currentUserId =
-        FirebaseAuth.instance.currentUser?.uid ?? '';
+    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
     final String name = _getUserName(user);
     final String email = _getUserEmail(user);
     final String role = _getUserRole(user);
 
     final bool isAdmin = role == 'admin';
-    final bool isCurrentUser =
-        userId == currentUserId;
+    final bool isCurrentUser = userId == currentUserId;
 
-    final bool isProcessing =
-        _processingUserId == userId;
+    final bool isProcessing = _processingUserId == userId;
 
     final Color roleColor = isAdmin
         ? const Color(0xFF364FC7)
@@ -505,8 +421,7 @@ class _AdminUserScreenState
             const SizedBox(width: 14),
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -514,8 +429,7 @@ class _AdminUserScreenState
                         child: Text(
                           name,
                           maxLines: 1,
-                          overflow:
-                              TextOverflow.ellipsis,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -526,16 +440,15 @@ class _AdminUserScreenState
                       if (isCurrentUser) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding:
-                              const EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 7,
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF364FC7)
-                                .withValues(alpha: 0.11),
-                            borderRadius:
-                                BorderRadius.circular(20),
+                            color: const Color(
+                              0xFF364FC7,
+                            ).withValues(alpha: 0.11),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Text(
                             'Bạn',
@@ -566,15 +479,11 @@ class _AdminUserScreenState
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color:
-                          roleColor.withValues(alpha: 0.10),
-                      borderRadius:
-                          BorderRadius.circular(20),
+                      color: roleColor.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      isAdmin
-                          ? 'Quản trị viên'
-                          : 'Học viên',
+                      isAdmin ? 'Quản trị viên' : 'Học viên',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -600,27 +509,18 @@ class _AdminUserScreenState
                 tooltip: isCurrentUser
                     ? 'Không thể tự đổi quyền'
                     : 'Thay đổi quyền',
-                enabled: !isCurrentUser &&
-                    _processingUserId == null,
+                enabled: !isCurrentUser && _processingUserId == null,
                 onSelected: (String value) {
-                  _changeUserRole(
-                    user: user,
-                    newRole: value,
-                  );
+                  _changeUserRole(user: user, newRole: value);
                 },
-                itemBuilder: (
-                  BuildContext context,
-                ) {
+                itemBuilder: (BuildContext context) {
                   return [
                     PopupMenuItem<String>(
                       value: 'student',
                       enabled: role != 'student',
                       child: const Row(
                         children: [
-                          Icon(
-                            Icons.school_rounded,
-                            color: Color(0xFF2F9E44),
-                          ),
+                          Icon(Icons.school_rounded, color: Color(0xFF2F9E44)),
                           SizedBox(width: 10),
                           Text('Đặt làm học viên'),
                         ],
@@ -632,14 +532,11 @@ class _AdminUserScreenState
                       child: const Row(
                         children: [
                           Icon(
-                            Icons
-                                .admin_panel_settings_rounded,
+                            Icons.admin_panel_settings_rounded,
                             color: Color(0xFF364FC7),
                           ),
                           SizedBox(width: 10),
-                          Text(
-                            'Đặt làm quản trị viên',
-                          ),
+                          Text('Đặt làm quản trị viên'),
                         ],
                       ),
                     ),
@@ -659,9 +556,7 @@ class _AdminUserScreenState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(
-              color: Color(0xFF0C8599),
-            ),
+            const CircularProgressIndicator(color: Color(0xFF0C8599)),
             const SizedBox(height: 18),
             Text(
               'Đang tải danh sách tài khoản...',
@@ -712,9 +607,7 @@ class _AdminUserScreenState
     );
   }
 
-  Widget _buildEmptyView({
-    required bool isFiltered,
-  }) {
+  Widget _buildEmptyView({required bool isFiltered}) {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(28),
@@ -728,9 +621,7 @@ class _AdminUserScreenState
             ),
             const SizedBox(height: 18),
             Text(
-              isFiltered
-                  ? 'Không tìm thấy tài khoản'
-                  : 'Chưa có tài khoản',
+              isFiltered ? 'Không tìm thấy tài khoản' : 'Chưa có tài khoản',
               style: TextStyle(
                 fontSize: 21,
                 fontWeight: FontWeight.bold,
@@ -758,9 +649,7 @@ class _AdminUserScreenState
                     _selectedRoleFilter = 'all';
                   });
                 },
-                icon: const Icon(
-                  Icons.filter_alt_off_rounded,
-                ),
+                icon: const Icon(Icons.filter_alt_off_rounded),
                 label: const Text('Xóa bộ lọc'),
               ),
             ],
@@ -770,53 +659,42 @@ class _AdminUserScreenState
     );
   }
 
-  Widget _buildUserList(
-    List<Map<String, dynamic>> allUsers,
-  ) {
-    final List<Map<String, dynamic>> filteredUsers =
-        _filterUsers(allUsers);
+  Widget _buildUserList(List<Map<String, dynamic>> allUsers) {
+    final List<Map<String, dynamic>> filteredUsers = _filterUsers(allUsers);
 
     final bool isFiltered =
-        _searchKeyword.isNotEmpty ||
-            _selectedRoleFilter != 'all';
+        _searchKeyword.isNotEmpty || _selectedRoleFilter != 'all';
 
     return Column(
       children: [
-        Container(
-          color: Theme.of(context).colorScheme.surface,
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            16,
-            16,
-            18,
-          ),
-          child: Column(
-            children: [
-              _buildSummarySection(allUsers),
-              const SizedBox(height: 16),
-              _buildSearchAndFilter(),
-            ],
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: Container(
+              color: Theme.of(context).colorScheme.surface,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+              child: Column(
+                children: [
+                  _buildSummarySection(allUsers),
+                  const SizedBox(height: 16),
+                  _buildSearchAndFilter(),
+                ],
+              ),
+            ),
           ),
         ),
         Expanded(
           child: filteredUsers.isEmpty
-              ? _buildEmptyView(
-                  isFiltered: isFiltered,
-                )
+              ? _buildEmptyView(isFiltered: isFiltered)
               : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(
-                    20,
-                    20,
-                    20,
-                    32,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
                   itemCount: filteredUsers.length,
-                  itemBuilder: (
-                    BuildContext context,
-                    int index,
-                  ) {
-                    return _buildUserCard(
-                      filteredUsers[index],
+                  itemBuilder: (BuildContext context, int index) {
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 900),
+                        child: _buildUserCard(filteredUsers[index]),
+                      ),
                     );
                   },
                 ),
@@ -831,9 +709,7 @@ class _AdminUserScreenState
       appBar: AppBar(
         title: const Text(
           'Quản lý tài khoản',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF0C8599),
         foregroundColor: Colors.white,
@@ -841,59 +717,45 @@ class _AdminUserScreenState
       ),
       body: SafeArea(
         child: StreamBuilder<bool>(
-          stream:
-              _adminService.isCurrentUserAdminStream,
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<bool> adminSnapshot,
-          ) {
-            if (adminSnapshot.connectionState ==
-                    ConnectionState.waiting &&
+          stream: _adminService.isCurrentUserAdminStream,
+          builder: (BuildContext context, AsyncSnapshot<bool> adminSnapshot) {
+            if (adminSnapshot.connectionState == ConnectionState.waiting &&
                 !adminSnapshot.hasData) {
               return _buildLoadingView();
             }
 
             if (adminSnapshot.hasError) {
-              return _buildErrorView(
-                adminSnapshot.error!,
-              );
+              return _buildErrorView(adminSnapshot.error!);
             }
 
             if (adminSnapshot.data != true) {
               return _buildErrorView(
-                StateError(
-                  'Tài khoản hiện tại không có quyền quản trị.',
-                ),
+                StateError('Tài khoản hiện tại không có quyền quản trị.'),
               );
             }
 
-            return StreamBuilder<
-                List<Map<String, dynamic>>>(
+            return StreamBuilder<List<Map<String, dynamic>>>(
               stream: _adminService.getUsersStream(),
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<
-                        List<Map<String, dynamic>>>
-                    userSnapshot,
-              ) {
-                if (userSnapshot.connectionState ==
-                        ConnectionState.waiting &&
-                    !userSnapshot.hasData) {
-                  return _buildLoadingView();
-                }
+              builder:
+                  (
+                    BuildContext context,
+                    AsyncSnapshot<List<Map<String, dynamic>>> userSnapshot,
+                  ) {
+                    if (userSnapshot.connectionState ==
+                            ConnectionState.waiting &&
+                        !userSnapshot.hasData) {
+                      return _buildLoadingView();
+                    }
 
-                if (userSnapshot.hasError) {
-                  return _buildErrorView(
-                    userSnapshot.error!,
-                  );
-                }
+                    if (userSnapshot.hasError) {
+                      return _buildErrorView(userSnapshot.error!);
+                    }
 
-                final List<Map<String, dynamic>> users =
-                    userSnapshot.data ??
-                        <Map<String, dynamic>>[];
+                    final List<Map<String, dynamic>> users =
+                        userSnapshot.data ?? <Map<String, dynamic>>[];
 
-                return _buildUserList(users);
-              },
+                    return _buildUserList(users);
+                  },
             );
           },
         ),

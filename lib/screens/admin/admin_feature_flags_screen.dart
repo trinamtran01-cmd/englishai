@@ -7,8 +7,9 @@ import '../../services/feature_flag_service.dart';
 /// Định nghĩa tĩnh của 1 tính năng có thể bật/tắt.
 ///
 /// [id] PHẢI khớp với các hằng `featureId...` khai báo trong
-/// `home_screen.dart` — đây là danh sách tính năng học viên nhìn
-/// thấy trên trang chủ.
+/// `home_screen.dart` (4 tính năng đầu) và `english_ai_features_screen.dart`
+/// (5 tính năng còn lại, gom trong nhóm "English AI") — đây là danh
+/// sách tính năng học viên nhìn thấy.
 class _FeatureDefinition {
   final String id;
   final String defaultLabel;
@@ -55,6 +56,12 @@ const List<_FeatureDefinition> _featureDefinitions = [
     color: Color(0xFFE64980),
   ),
   _FeatureDefinition(
+    id: 'ai_dictionary',
+    defaultLabel: 'Từ điển AI',
+    icon: Icons.menu_book_outlined,
+    color: Color(0xFF20C997),
+  ),
+  _FeatureDefinition(
     id: 'listening_speaking',
     defaultLabel: 'Luyện Nghe & Nói AI',
     icon: Icons.headphones_rounded,
@@ -65,6 +72,12 @@ const List<_FeatureDefinition> _featureDefinitions = [
     defaultLabel: 'Luyện Shadowing',
     icon: Icons.record_voice_over_rounded,
     color: Color(0xFF7048E8),
+  ),
+  _FeatureDefinition(
+    id: 'writing',
+    defaultLabel: 'Luyện Viết AI',
+    icon: Icons.edit_note_rounded,
+    color: Color(0xFFE8590C),
   ),
 ];
 
@@ -80,8 +93,7 @@ class AdminFeatureFlagsScreen extends StatefulWidget {
       _AdminFeatureFlagsScreenState();
 }
 
-class _AdminFeatureFlagsScreenState
-    extends State<AdminFeatureFlagsScreen> {
+class _AdminFeatureFlagsScreenState extends State<AdminFeatureFlagsScreen> {
   static const Color _accentColor = Color(0xFF364FC7);
 
   final AdminService _adminService = AdminService();
@@ -113,9 +125,7 @@ class _AdminFeatureFlagsScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể cập nhật trạng thái tính năng: $error',
-          ),
+          content: Text('Không thể cập nhật trạng thái tính năng: $error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -132,10 +142,8 @@ class _AdminFeatureFlagsScreenState
     required _FeatureDefinition feature,
     required FeatureFlag? currentFlag,
   }) async {
-    final TextEditingController messageController =
-        TextEditingController(
-      text: currentFlag?.disabledMessage ??
-          FeatureFlag.defaultDisabledMessage,
+    final TextEditingController messageController = TextEditingController(
+      text: currentFlag?.disabledMessage ?? FeatureFlag.defaultDisabledMessage,
     );
 
     bool isSaving = false;
@@ -145,100 +153,96 @@ class _AdminFeatureFlagsScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> save() async {
-              if (isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> save() async {
+                  if (isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              try {
-                await _adminService.requireAdmin();
+                  try {
+                    await _adminService.requireAdmin();
 
-                await _featureFlagService.setFeatureEnabled(
-                  feature.id,
-                  currentFlag?.isEnabled ?? true,
-                  label: feature.defaultLabel,
-                  disabledMessage: messageController.text,
-                );
+                    await _featureFlagService.setFeatureEnabled(
+                      feature.id,
+                      currentFlag?.isEnabled ?? true,
+                      label: feature.defaultLabel,
+                      disabledMessage: messageController.text,
+                    );
 
-                if (!dialogContext.mounted) {
-                  return;
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu thông báo: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu thông báo: $error',
+                return AlertDialog(
+                  title: Text('Thông báo khi khóa "${feature.defaultLabel}"'),
+                  content: TextField(
+                    controller: messageController,
+                    enabled: !isSaving,
+                    minLines: 2,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Nội dung thông báo',
+                      alignLabelWithHint: true,
+                      hintText: 'Hiện cho học viên khi tính năng đang bị khóa',
                     ),
-                    backgroundColor: Colors.red,
                   ),
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : save,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Icon(Icons.save_rounded),
+                      label: Text(isSaving ? 'Đang lưu...' : 'Lưu'),
+                    ),
+                  ],
                 );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                'Thông báo khi khóa "${feature.defaultLabel}"',
-              ),
-              content: TextField(
-                controller: messageController,
-                enabled: !isSaving,
-                minLines: 2,
-                maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Nội dung thông báo',
-                  alignLabelWithHint: true,
-                  hintText:
-                      'Hiện cho học viên khi tính năng đang bị khóa',
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext).pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSaving ? null : save,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Icon(Icons.save_rounded),
-                  label: Text(isSaving ? 'Đang lưu...' : 'Lưu'),
-                ),
-              ],
-            );
-          },
+              },
         );
       },
     );
@@ -270,9 +274,7 @@ class _AdminFeatureFlagsScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -286,11 +288,7 @@ class _AdminFeatureFlagsScreenState
                 color: feature.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(
-                feature.icon,
-                color: feature.color,
-                size: 24,
-              ),
+              child: Icon(feature.icon, color: feature.color, size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -323,10 +321,7 @@ class _AdminFeatureFlagsScreenState
               onPressed: isProcessing
                   ? null
                   : () {
-                      _editDisabledMessage(
-                        feature: feature,
-                        currentFlag: flag,
-                      );
+                      _editDisabledMessage(feature: feature, currentFlag: flag);
                     },
               icon: Icon(
                 Icons.edit_note_rounded,
@@ -374,80 +369,91 @@ class _AdminFeatureFlagsScreenState
       body: SafeArea(
         child: StreamBuilder<Map<String, FeatureFlag>>(
           stream: _featureFlagService.getAllFlags(),
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<Map<String, FeatureFlag>> snapshot,
-          ) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: _accentColor,
-                ),
-              );
-            }
+          builder:
+              (
+                BuildContext context,
+                AsyncSnapshot<Map<String, FeatureFlag>> snapshot,
+              ) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: _accentColor),
+                  );
+                }
 
-            if (snapshot.hasError) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(28),
-                  child: Text(
-                    'Không thể tải danh sách tính năng: '
-                    '${snapshot.error}',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              );
-            }
-
-            final Map<String, FeatureFlag> flags =
-                snapshot.data ?? <String, FeatureFlag>{};
-
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: _accentColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: _accentColor.withValues(alpha: 0.16),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.info_outline_rounded,
-                        color: _accentColor,
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: Text(
+                        'Không thể tải danh sách tính năng: '
+                        '${snapshot.error}',
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Tắt 1 tính năng sẽ làm mờ card tương ứng '
-                          'trên trang chủ học viên và chặn truy cập, '
-                          'kèm badge "Đang phát triển".',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.4,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                    ),
+                  );
+                }
+
+                final Map<String, FeatureFlag> flags =
+                    snapshot.data ?? <String, FeatureFlag>{};
+
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                  children: [
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 900),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              margin: const EdgeInsets.only(bottom: 20),
+                              decoration: BoxDecoration(
+                                color: _accentColor.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _accentColor.withValues(alpha: 0.16),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.info_outline_rounded,
+                                    color: _accentColor,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Tắt 1 tính năng sẽ làm mờ card tương ứng '
+                                      'trên trang chủ học viên và chặn truy cập, '
+                                      'kèm badge "Đang phát triển".',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        height: 1.4,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            for (final _FeatureDefinition feature
+                                in _featureDefinitions)
+                              _buildFeatureRow(
+                                feature: feature,
+                                flag: flags[feature.id],
+                              ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                for (final _FeatureDefinition feature
-                    in _featureDefinitions)
-                  _buildFeatureRow(
-                    feature: feature,
-                    flag: flags[feature.id],
-                  ),
-              ],
-            );
-          },
+                    ),
+                  ],
+                );
+              },
         ),
       ),
     );

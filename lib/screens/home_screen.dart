@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 import '../models/feature_flag.dart';
 import '../services/auth_service.dart';
 import '../services/feature_flag_service.dart';
-import 'ai_camera_scan_screen.dart';
-import 'ai_dictionary_screen.dart';
+import '../widgets/feature_card.dart';
 import 'ai_recommendation_screen.dart';
+import 'english_ai_features_screen.dart';
 import 'lesson_list_screen.dart';
-import 'listening_video_list_screen.dart';
 import 'progress_screen.dart';
 import 'quiz_list_screen.dart';
-import 'shadowing_lesson_list_screen.dart';
-import 'writing_task_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,12 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   static const String featureIdQuiz = 'quiz';
   static const String featureIdAiRecommendation = 'ai_recommendation';
   static const String featureIdProgress = 'progress';
-  static const String featureIdAiCamera = 'ai_camera';
-  static const String featureIdAiDictionary = 'ai_dictionary';
-  static const String featureIdListeningSpeaking =
-      'listening_speaking';
-  static const String featureIdShadowing = 'shadowing';
-  static const String featureIdWriting = 'writing';
 
   Future<void> _handleLogout() async {
     final bool? shouldLogout = await showDialog<bool>(
@@ -141,181 +132,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Mở màn hình chụp ảnh nhận diện từ vựng bằng AI.
-  void _openAiCameraScanScreen() {
+  /// Mở màn hình gom nhóm 5 tính năng English AI.
+  void _openEnglishAiFeaturesScreen() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
-          return const AiCameraScanScreen();
+          return const EnglishAiFeaturesScreen();
         },
-      ),
-    );
-  }
-
-  /// Mở màn hình Từ điển AI.
-  void _openAiDictionaryScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return const AiDictionaryScreen();
-        },
-      ),
-    );
-  }
-
-  /// Mở màn hình danh sách bài luyện nghe & nói AI.
-  void _openListeningVideoListScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return const ListeningVideoListScreen();
-        },
-      ),
-    );
-  }
-
-  /// Mở màn hình danh sách bài luyện Shadowing.
-  void _openShadowingLessonListScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return const ShadowingLessonListScreen();
-        },
-      ),
-    );
-  }
-
-  /// Mở màn hình danh sách đề bài Luyện Viết AI.
-  void _openWritingTaskListScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          return const WritingTaskListScreen();
-        },
-      ),
-    );
-  }
-
-  Widget _buildDevelopingBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 3,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF59F00).withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Text(
-        'Đang phát triển',
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFFF59F00),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFeatureCard({
-    required IconData icon,
-    required String title,
-    required String description,
-    required Color color,
-    required VoidCallback onTap,
-    required bool isEnabled,
-    required String disabledMessage,
-  }) {
-    return Opacity(
-      opacity: isEnabled ? 1 : 0.5,
-      child: Card(
-        elevation: 0,
-        color: Theme.of(context).colorScheme.surface,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-        ),
-        child: InkWell(
-          onTap: isEnabled
-              ? onTap
-              : () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(disabledMessage),
-                      backgroundColor: const Color(0xFF495057),
-                    ),
-                  );
-                },
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Row(
-              children: [
-                Container(
-                  width: 54,
-                  height: 54,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 29,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              title,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                          if (!isEnabled) ...[
-                            const SizedBox(width: 8),
-                            _buildDevelopingBadge(),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.4,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 17,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -331,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
       required Color color,
       required VoidCallback onTap,
     }) {
-      return _buildFeatureCard(
+      return FeatureCard(
         icon: icon,
         title: title,
         description: description,
@@ -388,55 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: _openProgressScreen,
       ),
       const SizedBox(height: 12),
-      cardFor(
-        featureId: featureIdAiCamera,
-        icon: Icons.camera_alt_rounded,
-        title: 'AI Camera từ vựng',
+      FeatureCard(
+        icon: Icons.smart_toy_rounded,
+        title: 'English AI',
         description:
-            'Chụp ảnh vật thể để AI tự tạo từ vựng mới cho bạn.',
-        color: const Color(0xFFE64980),
-        onTap: _openAiCameraScanScreen,
-      ),
-      const SizedBox(height: 12),
-      cardFor(
-        featureId: featureIdAiDictionary,
-        icon: Icons.menu_book_outlined,
-        title: 'Từ điển AI',
-        description:
-            'Gõ một từ hoặc cụm từ tiếng Anh để AI tra nghĩa ngay.',
-        color: const Color(0xFF20C997),
-        onTap: _openAiDictionaryScreen,
-      ),
-      const SizedBox(height: 12),
-      cardFor(
-        featureId: featureIdListeningSpeaking,
-        icon: Icons.headphones_rounded,
-        title: 'Luyện Nghe & Nói AI',
-        description:
-            'Nghe video, điền từ và luyện nói cùng AI phân tích.',
-        color: const Color(0xFF0C8599),
-        onTap: _openListeningVideoListScreen,
-      ),
-      const SizedBox(height: 12),
-      cardFor(
-        featureId: featureIdShadowing,
-        icon: Icons.record_voice_over_rounded,
-        title: 'Luyện Shadowing',
-        description:
-            'Nghe từng câu, ghi âm nhại lại và xem AI chấm '
-            'điểm phát âm.',
-        color: const Color(0xFF7048E8),
-        onTap: _openShadowingLessonListScreen,
-      ),
-      const SizedBox(height: 12),
-      cardFor(
-        featureId: featureIdWriting,
-        icon: Icons.edit_note_rounded,
-        title: 'Luyện Viết AI',
-        description:
-            'Viết bài IELTS Task 1/2 và được AI chấm điểm chi tiết.',
-        color: const Color(0xFFE8590C),
-        onTap: _openWritingTaskListScreen,
+            '5 công cụ luyện tập tiếng Anh bằng AI: Camera từ vựng, '
+            'Từ điển, Nghe & Nói, Shadowing, Viết.',
+        color: const Color(0xFF5F3DC4),
+        onTap: _openEnglishAiFeaturesScreen,
       ),
     ];
   }

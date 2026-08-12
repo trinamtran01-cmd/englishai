@@ -14,18 +14,15 @@ class AdminShadowingScreen extends StatefulWidget {
   const AdminShadowingScreen({super.key});
 
   @override
-  State<AdminShadowingScreen> createState() =>
-      _AdminShadowingScreenState();
+  State<AdminShadowingScreen> createState() => _AdminShadowingScreenState();
 }
 
-class _AdminShadowingScreenState
-    extends State<AdminShadowingScreen> {
+class _AdminShadowingScreenState extends State<AdminShadowingScreen> {
   static const Color _accentColor = Color(0xFF7048E8);
 
   final AdminService _adminService = AdminService();
 
-  final ShadowingLessonService _lessonService =
-      ShadowingLessonService();
+  final ShadowingLessonService _lessonService = ShadowingLessonService();
 
   List<ShadowingLesson> _lessons = <ShadowingLesson>[];
 
@@ -51,8 +48,8 @@ class _AdminShadowingScreenState
     });
 
     try {
-      final List<ShadowingLesson> lessons =
-          await _lessonService.getAllLessonsOnce();
+      final List<ShadowingLesson> lessons = await _lessonService
+          .getAllLessonsOnce();
 
       if (!mounted) {
         return;
@@ -98,9 +95,7 @@ class _AdminShadowingScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Đã kiểm tra và tạo dữ liệu bài luyện Shadowing mẫu.',
-          ),
+          content: Text('Đã kiểm tra và tạo dữ liệu bài luyện Shadowing mẫu.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -127,11 +122,13 @@ class _AdminShadowingScreenState
   Future<void> _showLessonForm({ShadowingLesson? lesson}) async {
     final bool isEditing = lesson != null;
 
-    final TextEditingController titleController =
-        TextEditingController(text: lesson?.title ?? '');
+    final TextEditingController titleController = TextEditingController(
+      text: lesson?.title ?? '',
+    );
 
-    final TextEditingController descriptionController =
-        TextEditingController(text: lesson?.description ?? '');
+    final TextEditingController descriptionController = TextEditingController(
+      text: lesson?.description ?? '',
+    );
 
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -143,182 +140,182 @@ class _AdminShadowingScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveLesson() async {
-              if (!formKey.currentState!.validate() || isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveLesson() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final ShadowingLesson lessonToSave = ShadowingLesson(
-                id: lesson?.id ?? '',
-                title: titleController.text.trim(),
-                description: descriptionController.text.trim(),
-                level: level,
-                createdAt: lesson?.createdAt,
-              );
+                  final ShadowingLesson lessonToSave = ShadowingLesson(
+                    id: lesson?.id ?? '',
+                    title: titleController.text.trim(),
+                    description: descriptionController.text.trim(),
+                    level: level,
+                    createdAt: lesson?.createdAt,
+                  );
 
-              try {
-                await _adminService.requireAdmin();
+                  try {
+                    await _adminService.requireAdmin();
 
-                if (isEditing) {
-                  await _lessonService.updateLesson(lessonToSave);
-                } else {
-                  await _lessonService.addLesson(lessonToSave);
+                    if (isEditing) {
+                      await _lessonService.updateLesson(lessonToSave);
+                    } else {
+                      await _lessonService.addLesson(lessonToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Không thể lưu bài luyện Shadowing: $error',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu bài luyện Shadowing: $error',
-                    ),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing
+                        ? 'Chỉnh sửa bài luyện Shadowing'
+                        : 'Thêm bài luyện Shadowing mới',
                   ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                isEditing
-                    ? 'Chỉnh sửa bài luyện Shadowing'
-                    : 'Thêm bài luyện Shadowing mới',
-              ),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: titleController,
-                          enabled: !isSaving,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Tiêu đề',
-                            prefixIcon: Icon(Icons.title_rounded),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập tiêu đề';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: descriptionController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: 'Mô tả',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(Icons.notes_rounded),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        DropdownButtonFormField<String>(
-                          initialValue: level,
-                          decoration: const InputDecoration(
-                            labelText: 'Mức độ',
-                            prefixIcon: Icon(
-                              Icons.signal_cellular_alt_rounded,
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: titleController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Tiêu đề',
+                                prefixIcon: Icon(Icons.title_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập tiêu đề';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          items: const [
-                            DropdownMenuItem<String>(
-                              value: 'beginner',
-                              child: Text('Cơ bản'),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: descriptionController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Mô tả',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.notes_rounded),
+                              ),
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'intermediate',
-                              child: Text('Trung cấp'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'advanced',
-                              child: Text('Nâng cao'),
+                            const SizedBox(height: 15),
+                            DropdownButtonFormField<String>(
+                              initialValue: level,
+                              decoration: const InputDecoration(
+                                labelText: 'Mức độ',
+                                prefixIcon: Icon(
+                                  Icons.signal_cellular_alt_rounded,
+                                ),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'beginner',
+                                  child: Text('Cơ bản'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'intermediate',
+                                  child: Text('Trung cấp'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'advanced',
+                                  child: Text('Nâng cao'),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (String? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+                                      setDialogState(() {
+                                        level = value;
+                                      });
+                                    },
                             ),
                           ],
-                          onChanged: isSaving
-                              ? null
-                              : (String? value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-                                  setDialogState(() {
-                                    level = value;
-                                  });
-                                },
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext).pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSaving ? null : saveLesson,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveLesson,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm bài luyện',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -365,9 +362,7 @@ class _AdminShadowingScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Xóa'),
             ),
           ],
@@ -415,18 +410,14 @@ class _AdminShadowingScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể xóa bài luyện Shadowing: $error',
-          ),
+          content: Text('Không thể xóa bài luyện Shadowing: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _openSegmentManagement(
-    ShadowingLesson lesson,
-  ) async {
+  Future<void> _openSegmentManagement(ShadowingLesson lesson) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) {
@@ -445,9 +436,7 @@ class _AdminShadowingScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -479,8 +468,7 @@ class _AdminShadowingScreenState
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           lesson.title,
@@ -495,7 +483,9 @@ class _AdminShadowingScreenState
                           lesson.levelLabel,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -513,15 +503,14 @@ class _AdminShadowingScreenState
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     lesson.description,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
+                    style: const TextStyle(fontSize: 13, height: 1.4),
                   ),
                 ),
               ],
@@ -588,10 +577,7 @@ class _AdminShadowingScreenState
             const SizedBox(height: 18),
             const Text(
               'Chưa có bài luyện Shadowing',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -607,9 +593,7 @@ class _AdminShadowingScreenState
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              onPressed: _isCreatingSampleData
-                  ? null
-                  : _createSampleLesson,
+              onPressed: _isCreatingSampleData ? null : _createSampleLesson,
               icon: _isCreatingSampleData
                   ? const SizedBox(
                       width: 18,
@@ -625,9 +609,7 @@ class _AdminShadowingScreenState
                     ? 'Đang tạo dữ liệu...'
                     : 'Tạo dữ liệu mẫu',
               ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _accentColor,
-              ),
+              style: OutlinedButton.styleFrom(foregroundColor: _accentColor),
             ),
           ],
         ),
@@ -667,9 +649,7 @@ class _AdminShadowingScreenState
           builder: (BuildContext context) {
             if (_isLoading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: _accentColor,
-                ),
+                child: CircularProgressIndicator(color: _accentColor),
               );
             }
 
@@ -693,13 +673,18 @@ class _AdminShadowingScreenState
               color: _accentColor,
               onRefresh: _loadLessons,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  20,
-                  20,
-                  20,
-                  100,
-                ),
-                children: _lessons.map(_buildLessonCard).toList(),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _lessons.map(_buildLessonCard).toList(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -727,8 +712,7 @@ class _AdminShadowingSegmentsScreenState
 
   final AdminService _adminService = AdminService();
 
-  final ShadowingLessonService _lessonService =
-      ShadowingLessonService();
+  final ShadowingLessonService _lessonService = ShadowingLessonService();
 
   List<ShadowingSegment> _segments = <ShadowingSegment>[];
 
@@ -750,10 +734,8 @@ class _AdminShadowingSegmentsScreenState
     });
 
     try {
-      final List<ShadowingSegment> segments =
-          await _lessonService.getSegmentsByLessonOnce(
-        widget.lesson.id,
-      );
+      final List<ShadowingSegment> segments = await _lessonService
+          .getSegmentsByLessonOnce(widget.lesson.id);
 
       if (!mounted) {
         return;
@@ -778,16 +760,15 @@ class _AdminShadowingSegmentsScreenState
   Future<void> _showSegmentForm({ShadowingSegment? segment}) async {
     final bool isEditing = segment != null;
 
-    final TextEditingController textController =
-        TextEditingController(text: segment?.text ?? '');
+    final TextEditingController textController = TextEditingController(
+      text: segment?.text ?? '',
+    );
 
-    final TextEditingController ipaController =
-        TextEditingController(
+    final TextEditingController ipaController = TextEditingController(
       text: segment?.ipaPronunciation ?? '',
     );
 
-    final TextEditingController translationController =
-        TextEditingController(
+    final TextEditingController translationController = TextEditingController(
       text: segment?.vietnameseTranslation ?? '',
     );
 
@@ -800,177 +781,167 @@ class _AdminShadowingSegmentsScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveSegment() async {
-              if (!formKey.currentState!.validate() || isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveSegment() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final int order =
-                  segment?.order ?? _segments.length + 1;
+                  final int order = segment?.order ?? _segments.length + 1;
 
-              final ShadowingSegment segmentToSave =
-                  ShadowingSegment(
-                id: segment?.id ?? '',
-                lessonId: widget.lesson.id,
-                order: order,
-                text: textController.text.trim(),
-                ipaPronunciation: ipaController.text.trim(),
-                vietnameseTranslation:
-                    translationController.text.trim(),
-              );
-
-              try {
-                await _adminService.requireAdmin();
-
-                if (isEditing) {
-                  await _lessonService.updateSegment(
-                    segmentToSave,
+                  final ShadowingSegment segmentToSave = ShadowingSegment(
+                    id: segment?.id ?? '',
+                    lessonId: widget.lesson.id,
+                    order: order,
+                    text: textController.text.trim(),
+                    ipaPronunciation: ipaController.text.trim(),
+                    vietnameseTranslation: translationController.text.trim(),
                   );
-                } else {
-                  await _lessonService.addSegment(segmentToSave);
+
+                  try {
+                    await _adminService.requireAdmin();
+
+                    if (isEditing) {
+                      await _lessonService.updateSegment(segmentToSave);
+                    } else {
+                      await _lessonService.addSegment(segmentToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu câu: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(
-                    content: Text('Không thể lưu câu: $error'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(isEditing ? 'Chỉnh sửa câu' : 'Thêm câu mới'),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: textController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: 'Câu tiếng Anh',
-                            hintText:
-                                'Ví dụ: Could you send me that '
-                                'report by noon?',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.format_quote_rounded,
+                return AlertDialog(
+                  title: Text(isEditing ? 'Chỉnh sửa câu' : 'Thêm câu mới'),
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: textController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Câu tiếng Anh',
+                                hintText:
+                                    'Ví dụ: Could you send me that '
+                                    'report by noon?',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.format_quote_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập câu tiếng Anh';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập câu tiếng Anh';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: ipaController,
-                          enabled: !isSaving,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Phiên âm IPA (không bắt buộc)',
-                            hintText: r'Ví dụ: /kʊd juː sɛnd miː/',
-                            prefixIcon: Icon(
-                              Icons.record_voice_over_outlined,
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: ipaController,
+                              enabled: !isSaving,
+                              decoration: const InputDecoration(
+                                labelText: 'Phiên âm IPA (không bắt buộc)',
+                                hintText: r'Ví dụ: /kʊd juː sɛnd miː/',
+                                prefixIcon: Icon(
+                                  Icons.record_voice_over_outlined,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: translationController,
-                          enabled: !isSaving,
-                          minLines: 1,
-                          maxLines: 3,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Bản dịch tiếng Việt (không bắt '
-                                'buộc)',
-                            hintText:
-                                'Ví dụ: Bạn có thể gửi báo cáo đó '
-                                'cho tôi trước buổi trưa không?',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.translate_rounded,
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: translationController,
+                              enabled: !isSaving,
+                              minLines: 1,
+                              maxLines: 3,
+                              decoration: const InputDecoration(
+                                labelText:
+                                    'Bản dịch tiếng Việt (không bắt '
+                                    'buộc)',
+                                hintText:
+                                    'Ví dụ: Bạn có thể gửi báo cáo đó '
+                                    'cho tôi trước buổi trưa không?',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.translate_rounded),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext).pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSaving ? null : saveSegment,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveSegment,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm câu',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -985,9 +956,7 @@ class _AdminShadowingSegmentsScreenState
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          isEditing ? 'Đã cập nhật câu.' : 'Đã thêm câu mới.',
-        ),
+        content: Text(isEditing ? 'Đã cập nhật câu.' : 'Đã thêm câu mới.'),
         backgroundColor: Colors.green,
       ),
     );
@@ -1001,9 +970,7 @@ class _AdminShadowingSegmentsScreenState
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Xóa câu này?'),
-          content: Text(
-            'Bạn có chắc muốn xóa câu "${segment.text}" không?',
-          ),
+          content: Text('Bạn có chắc muốn xóa câu "${segment.text}" không?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -1015,9 +982,7 @@ class _AdminShadowingSegmentsScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Xóa'),
             ),
           ],
@@ -1081,9 +1046,7 @@ class _AdminShadowingSegmentsScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(15),
@@ -1120,9 +1083,7 @@ class _AdminShadowingSegmentsScreenState
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                  if (segment.ipaPronunciation
-                      .trim()
-                      .isNotEmpty) ...[
+                  if (segment.ipaPronunciation.trim().isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       segment.ipaPronunciation,
@@ -1133,9 +1094,7 @@ class _AdminShadowingSegmentsScreenState
                       ),
                     ),
                   ],
-                  if (segment.vietnameseTranslation
-                      .trim()
-                      .isNotEmpty) ...[
+                  if (segment.vietnameseTranslation.trim().isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       segment.vietnameseTranslation,
@@ -1205,10 +1164,7 @@ class _AdminShadowingSegmentsScreenState
             const SizedBox(height: 16),
             const Text(
               'Bài này chưa có câu nào',
-              style: TextStyle(
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -1271,9 +1227,7 @@ class _AdminShadowingSegmentsScreenState
           builder: (BuildContext context) {
             if (_isLoading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: _accentColor,
-                ),
+                child: CircularProgressIndicator(color: _accentColor),
               );
             }
 
@@ -1297,13 +1251,18 @@ class _AdminShadowingSegmentsScreenState
               color: _accentColor,
               onRefresh: _loadSegments,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  20,
-                  20,
-                  20,
-                  100,
-                ),
-                children: _segments.map(_buildSegmentCard).toList(),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _segments.map(_buildSegmentCard).toList(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },

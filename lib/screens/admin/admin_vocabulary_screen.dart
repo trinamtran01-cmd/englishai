@@ -10,16 +10,13 @@ class AdminVocabularyScreen extends StatefulWidget {
   const AdminVocabularyScreen({super.key});
 
   @override
-  State<AdminVocabularyScreen> createState() =>
-      _AdminVocabularyScreenState();
+  State<AdminVocabularyScreen> createState() => _AdminVocabularyScreenState();
 }
 
-class _AdminVocabularyScreenState
-    extends State<AdminVocabularyScreen> {
+class _AdminVocabularyScreenState extends State<AdminVocabularyScreen> {
   final AdminService _adminService = AdminService();
   final LessonService _lessonService = LessonService();
-  final VocabularyService _vocabularyService =
-      VocabularyService();
+  final VocabularyService _vocabularyService = VocabularyService();
 
   List<Lesson> _lessons = <Lesson>[];
   List<Vocabulary> _vocabularies = <Vocabulary>[];
@@ -59,17 +56,13 @@ class _AdminVocabularyScreenState
     });
 
     try {
-      final bool isAdmin =
-          await _adminService.isCurrentUserAdmin();
+      final bool isAdmin = await _adminService.isCurrentUserAdmin();
 
       if (!isAdmin) {
-        throw StateError(
-          'Tài khoản hiện tại không có quyền quản trị.',
-        );
+        throw StateError('Tài khoản hiện tại không có quyền quản trị.');
       }
 
-      final List<Lesson> lessons =
-          await _lessonService.getAllLessons();
+      final List<Lesson> lessons = await _lessonService.getAllLessons();
 
       if (!mounted) {
         return;
@@ -80,10 +73,9 @@ class _AdminVocabularyScreenState
       if (lessons.isEmpty) {
         selectedId = null;
       } else {
-        final bool stillExists = selectedId != null &&
-            lessons.any(
-              (Lesson lesson) => lesson.id == selectedId,
-            );
+        final bool stillExists =
+            selectedId != null &&
+            lessons.any((Lesson lesson) => lesson.id == selectedId);
 
         if (!stillExists) {
           selectedId = lessons.first.id;
@@ -111,18 +103,15 @@ class _AdminVocabularyScreenState
     }
   }
 
-  Future<void> _loadVocabularies(
-    String lessonId,
-  ) async {
+  Future<void> _loadVocabularies(String lessonId) async {
     setState(() {
       _isLoadingVocabularies = true;
       _errorMessage = null;
     });
 
     try {
-      final List<Vocabulary> vocabularies =
-          await _vocabularyService
-              .getVocabulariesByLesson(lessonId);
+      final List<Vocabulary> vocabularies = await _vocabularyService
+          .getVocabulariesByLesson(lessonId);
 
       if (!mounted) {
         return;
@@ -144,11 +133,8 @@ class _AdminVocabularyScreenState
     }
   }
 
-  Future<void> _selectLesson(
-    String? lessonId,
-  ) async {
-    if (lessonId == null ||
-        lessonId == _selectedLessonId) {
+  Future<void> _selectLesson(String? lessonId) async {
+    if (lessonId == null || lessonId == _selectedLessonId) {
       return;
     }
 
@@ -185,9 +171,7 @@ class _AdminVocabularyScreenState
     try {
       await _adminService.requireAdmin();
 
-      await _vocabularyService.createSampleVocabularies(
-        lesson,
-      );
+      await _vocabularyService.createSampleVocabularies(lesson);
 
       await _loadVocabularies(lesson.id);
 
@@ -197,9 +181,7 @@ class _AdminVocabularyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Đã kiểm tra và tạo dữ liệu từ vựng mẫu.',
-          ),
+          content: Text('Đã kiểm tra và tạo dữ liệu từ vựng mẫu.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -214,26 +196,20 @@ class _AdminVocabularyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể tạo dữ liệu mẫu: $error',
-          ),
+          content: Text('Không thể tạo dữ liệu mẫu: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _showVocabularyForm({
-    Vocabulary? vocabulary,
-  }) async {
+  Future<void> _showVocabularyForm({Vocabulary? vocabulary}) async {
     final Lesson? lesson = _selectedLesson;
 
     if (lesson == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Vui lòng chọn bài học trước.',
-          ),
+          content: Text('Vui lòng chọn bài học trước.'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -242,45 +218,35 @@ class _AdminVocabularyScreenState
 
     final bool isEditing = vocabulary != null;
 
-    final TextEditingController wordController =
-        TextEditingController(
+    final TextEditingController wordController = TextEditingController(
       text: vocabulary?.word ?? '',
     );
 
-    final TextEditingController meaningController =
-        TextEditingController(
+    final TextEditingController meaningController = TextEditingController(
       text: vocabulary?.meaning ?? '',
     );
 
-    final TextEditingController pronunciationController =
-        TextEditingController(
+    final TextEditingController pronunciationController = TextEditingController(
       text: vocabulary?.pronunciation ?? '',
     );
 
-    final TextEditingController partOfSpeechController =
-        TextEditingController(
+    final TextEditingController partOfSpeechController = TextEditingController(
       text: vocabulary?.partOfSpeech ?? '',
     );
 
-    final TextEditingController exampleController =
-        TextEditingController(
+    final TextEditingController exampleController = TextEditingController(
       text: vocabulary?.example ?? '',
     );
 
-    final TextEditingController
-        exampleMeaningController =
-        TextEditingController(
-      text: vocabulary?.exampleMeaning ?? '',
+    final TextEditingController exampleMeaningController =
+        TextEditingController(text: vocabulary?.exampleMeaning ?? '');
+
+    final TextEditingController orderController = TextEditingController(
+      text:
+          vocabulary?.order.toString() ?? (_vocabularies.length + 1).toString(),
     );
 
-    final TextEditingController orderController =
-        TextEditingController(
-      text: vocabulary?.order.toString() ??
-          (_vocabularies.length + 1).toString(),
-    );
-
-    final GlobalKey<FormState> formKey =
-        GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     bool isActive = vocabulary?.isActive ?? true;
     bool isSaving = false;
@@ -290,319 +256,264 @@ class _AdminVocabularyScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveVocabulary() async {
-              if (!formKey.currentState!.validate() ||
-                  isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveVocabulary() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final Vocabulary vocabularyToSave =
-                  Vocabulary(
-                id: vocabulary?.id ?? '',
-                lessonId: lesson.id,
-                word: wordController.text.trim(),
-                meaning: meaningController.text.trim(),
-                pronunciation:
-                    pronunciationController.text.trim(),
-                example: exampleController.text.trim(),
-                exampleMeaning:
-                    exampleMeaningController.text.trim(),
-                partOfSpeech:
-                    partOfSpeechController.text.trim(),
-                imageUrl: vocabulary?.imageUrl ?? '',
-                audioUrl: vocabulary?.audioUrl ?? '',
-                order: int.parse(
-                  orderController.text.trim(),
-                ),
-                isActive: isActive,
-                createdAt: vocabulary?.createdAt,
-                updatedAt: vocabulary?.updatedAt,
-              );
-
-              try {
-                await _adminService.requireAdmin();
-
-                if (isEditing) {
-                  await _vocabularyService
-                      .updateVocabulary(
-                    vocabularyToSave,
+                  final Vocabulary vocabularyToSave = Vocabulary(
+                    id: vocabulary?.id ?? '',
+                    lessonId: lesson.id,
+                    word: wordController.text.trim(),
+                    meaning: meaningController.text.trim(),
+                    pronunciation: pronunciationController.text.trim(),
+                    example: exampleController.text.trim(),
+                    exampleMeaning: exampleMeaningController.text.trim(),
+                    partOfSpeech: partOfSpeechController.text.trim(),
+                    imageUrl: vocabulary?.imageUrl ?? '',
+                    audioUrl: vocabulary?.audioUrl ?? '',
+                    order: int.parse(orderController.text.trim()),
+                    isActive: isActive,
+                    createdAt: vocabulary?.createdAt,
+                    updatedAt: vocabulary?.updatedAt,
                   );
-                } else {
-                  await _vocabularyService.addVocabulary(
-                    vocabularyToSave,
-                  );
+
+                  try {
+                    await _adminService.requireAdmin();
+
+                    if (isEditing) {
+                      await _vocabularyService.updateVocabulary(
+                        vocabularyToSave,
+                      );
+                    } else {
+                      await _vocabularyService.addVocabulary(vocabularyToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu từ vựng: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu từ vựng: $error',
-                    ),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing ? 'Chỉnh sửa từ vựng' : 'Thêm từ vựng mới',
                   ),
-                );
-              }
-            }
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF9C36B5,
+                                ).withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Bài học: ${lesson.title}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF9C36B5),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: wordController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Từ tiếng Anh',
+                                prefixIcon: Icon(Icons.translate_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập từ tiếng Anh';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: meaningController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Nghĩa tiếng Việt',
+                                prefixIcon: Icon(Icons.language_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập nghĩa tiếng Việt';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: pronunciationController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Phiên âm',
+                                hintText: '/həˈləʊ/',
+                                prefixIcon: Icon(
+                                  Icons.record_voice_over_rounded,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: partOfSpeechController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Từ loại',
+                                hintText: 'Danh từ, động từ, tính từ...',
+                                prefixIcon: Icon(Icons.category_outlined),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: exampleController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Câu ví dụ tiếng Anh',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.format_quote_rounded),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: exampleMeaningController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Nghĩa câu ví dụ',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.subtitles_outlined),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: orderController,
+                              enabled: !isSaving,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Thứ tự hiển thị',
+                                prefixIcon: Icon(Icons.format_list_numbered),
+                              ),
+                              validator: (String? value) {
+                                final int? order = int.tryParse(
+                                  value?.trim() ?? '',
+                                );
 
-            return AlertDialog(
-              title: Text(
-                isEditing
-                    ? 'Chỉnh sửa từ vựng'
-                    : 'Thêm từ vựng mới',
-              ),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF9C36B5)
-                                .withValues(alpha: 0.08),
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Bài học: ${lesson.title}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF9C36B5),
+                                if (order == null || order < 0) {
+                                  return 'Thứ tự phải là số từ 0 trở lên';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: wordController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Từ tiếng Anh',
-                            prefixIcon: Icon(
-                              Icons.translate_rounded,
+                            const SizedBox(height: 8),
+                            SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Từ vựng đang hoạt động'),
+                              subtitle: Text(
+                                isActive
+                                    ? 'Học viên có thể nhìn thấy từ này'
+                                    : 'Từ vựng đang bị ẩn',
+                              ),
+                              value: isActive,
+                              activeThumbColor: const Color(0xFF9C36B5),
+                              onChanged: isSaving
+                                  ? null
+                                  : (bool value) {
+                                      setDialogState(() {
+                                        isActive = value;
+                                      });
+                                    },
                             ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập từ tiếng Anh';
-                            }
-                            return null;
-                          },
+                          ],
                         ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: meaningController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Nghĩa tiếng Việt',
-                            prefixIcon: Icon(
-                              Icons.language_rounded,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập nghĩa tiếng Việt';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller:
-                              pronunciationController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Phiên âm',
-                            hintText: '/həˈləʊ/',
-                            prefixIcon: Icon(
-                              Icons.record_voice_over_rounded,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller:
-                              partOfSpeechController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Từ loại',
-                            hintText:
-                                'Danh từ, động từ, tính từ...',
-                            prefixIcon: Icon(
-                              Icons.category_outlined,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: exampleController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration:
-                              const InputDecoration(
-                            labelText:
-                                'Câu ví dụ tiếng Anh',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.format_quote_rounded,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller:
-                              exampleMeaningController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration:
-                              const InputDecoration(
-                            labelText:
-                                'Nghĩa câu ví dụ',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.subtitles_outlined,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: orderController,
-                          enabled: !isSaving,
-                          keyboardType:
-                              TextInputType.number,
-                          decoration:
-                              const InputDecoration(
-                            labelText: 'Thứ tự hiển thị',
-                            prefixIcon: Icon(
-                              Icons.format_list_numbered,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            final int? order =
-                                int.tryParse(
-                              value?.trim() ?? '',
-                            );
-
-                            if (order == null ||
-                                order < 0) {
-                              return 'Thứ tự phải là số từ 0 trở lên';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'Từ vựng đang hoạt động',
-                          ),
-                          subtitle: Text(
-                            isActive
-                                ? 'Học viên có thể nhìn thấy từ này'
-                                : 'Từ vựng đang bị ẩn',
-                          ),
-                          value: isActive,
-                          activeThumbColor:
-                              const Color(0xFF9C36B5),
-                          onChanged: isSaving
-                              ? null
-                              : (bool value) {
-                                  setDialogState(() {
-                                    isActive = value;
-                                  });
-                                },
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext)
-                              .pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed:
-                      isSaving ? null : saveVocabulary,
-                  style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFF9C36B5),
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child:
-                              CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveVocabulary,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF9C36B5),
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm từ vựng',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -622,9 +533,7 @@ class _AdminVocabularyScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isEditing
-              ? 'Đã cập nhật từ vựng.'
-              : 'Đã thêm từ vựng mới.',
+          isEditing ? 'Đã cập nhật từ vựng.' : 'Đã thêm từ vựng mới.',
         ),
         backgroundColor: Colors.green,
       ),
@@ -634,8 +543,7 @@ class _AdminVocabularyScreenState
   }
 
   Future<void> _addVocabulary() async {
-    if (_isAddingVocabulary ||
-        _selectedLesson == null) {
+    if (_isAddingVocabulary || _selectedLesson == null) {
       return;
     }
 
@@ -654,9 +562,7 @@ class _AdminVocabularyScreenState
     });
   }
 
-  Future<void> _updateVocabularyStatus(
-    Vocabulary vocabulary,
-  ) async {
+  Future<void> _updateVocabularyStatus(Vocabulary vocabulary) async {
     if (_processingVocabularyId != null) {
       return;
     }
@@ -691,18 +597,14 @@ class _AdminVocabularyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể cập nhật trạng thái: $error',
-          ),
+          content: Text('Không thể cập nhật trạng thái: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Future<void> _deleteVocabulary(
-    Vocabulary vocabulary,
-  ) async {
+  Future<void> _deleteVocabulary(Vocabulary vocabulary) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -723,9 +625,7 @@ class _AdminVocabularyScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Xóa'),
             ),
           ],
@@ -744,9 +644,7 @@ class _AdminVocabularyScreenState
     try {
       await _adminService.requireAdmin();
 
-      await _vocabularyService.deleteVocabulary(
-        vocabulary.id,
-      );
+      await _vocabularyService.deleteVocabulary(vocabulary.id);
 
       if (!mounted) {
         return;
@@ -775,20 +673,15 @@ class _AdminVocabularyScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể xóa từ vựng: $error',
-          ),
+          content: Text('Không thể xóa từ vựng: $error'),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-  Widget _buildVocabularyCard(
-    Vocabulary vocabulary,
-  ) {
-    final bool isProcessing =
-        _processingVocabularyId == vocabulary.id;
+  Widget _buildVocabularyCard(Vocabulary vocabulary) {
+    final bool isProcessing = _processingVocabularyId == vocabulary.id;
 
     final Color statusColor = vocabulary.isActive
         ? const Color(0xFF2F9E44)
@@ -800,9 +693,7 @@ class _AdminVocabularyScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(17),
@@ -810,18 +701,15 @@ class _AdminVocabularyScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 52,
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF9C36B5)
-                        .withValues(alpha: 0.11),
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    color: const Color(0xFF9C36B5).withValues(alpha: 0.11),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
                     Icons.translate_rounded,
@@ -832,8 +720,7 @@ class _AdminVocabularyScreenState
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         vocabulary.word,
@@ -843,9 +730,7 @@ class _AdminVocabularyScreenState
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                      if (vocabulary.pronunciation
-                          .trim()
-                          .isNotEmpty) ...[
+                      if (vocabulary.pronunciation.trim().isNotEmpty) ...[
                         const SizedBox(height: 3),
                         Text(
                           vocabulary.pronunciation,
@@ -872,16 +757,11 @@ class _AdminVocabularyScreenState
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(
-                      alpha: 0.1,
-                    ),
-                    borderRadius:
-                        BorderRadius.circular(20),
+                    color: statusColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    vocabulary.isActive
-                        ? 'Hoạt động'
-                        : 'Đang ẩn',
+                    vocabulary.isActive ? 'Hoạt động' : 'Đang ẩn',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -900,24 +780,18 @@ class _AdminVocabularyScreenState
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-            if (vocabulary.example
-                .trim()
-                .isNotEmpty) ...[
+            if (vocabulary.example.trim().isNotEmpty) ...[
               const SizedBox(height: 12),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   vocabulary.example,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 13, height: 1.4),
                 ),
               ),
             ],
@@ -944,24 +818,19 @@ class _AdminVocabularyScreenState
                         ? 'Ẩn từ vựng'
                         : 'Hiện từ vựng',
                     onPressed: () {
-                      _updateVocabularyStatus(
-                        vocabulary,
-                      );
+                      _updateVocabularyStatus(vocabulary);
                     },
                     icon: Icon(
                       vocabulary.isActive
                           ? Icons.visibility_rounded
-                          : Icons
-                              .visibility_off_rounded,
+                          : Icons.visibility_off_rounded,
                       color: statusColor,
                     ),
                   ),
                   IconButton(
                     tooltip: 'Chỉnh sửa',
                     onPressed: () {
-                      _showVocabularyForm(
-                        vocabulary: vocabulary,
-                      );
+                      _showVocabularyForm(vocabulary: vocabulary);
                     },
                     icon: const Icon(
                       Icons.edit_outlined,
@@ -996,24 +865,15 @@ class _AdminVocabularyScreenState
         isExpanded: true,
         decoration: const InputDecoration(
           labelText: 'Chọn bài học',
-          prefixIcon: Icon(
-            Icons.menu_book_rounded,
-          ),
+          prefixIcon: Icon(Icons.menu_book_rounded),
         ),
-        items: _lessons.map(
-          (Lesson lesson) {
-            return DropdownMenuItem<String>(
-              value: lesson.id,
-              child: Text(
-                lesson.title,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          },
-        ).toList(),
-        onChanged: _isLoadingVocabularies
-            ? null
-            : _selectLesson,
+        items: _lessons.map((Lesson lesson) {
+          return DropdownMenuItem<String>(
+            value: lesson.id,
+            child: Text(lesson.title, overflow: TextOverflow.ellipsis),
+          );
+        }).toList(),
+        onChanged: _isLoadingVocabularies ? null : _selectLesson,
       ),
     );
   }
@@ -1023,9 +883,7 @@ class _AdminVocabularyScreenState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            color: Color(0xFF9C36B5),
-          ),
+          const CircularProgressIndicator(color: Color(0xFF9C36B5)),
           const SizedBox(height: 18),
           Text(
             message,
@@ -1058,9 +916,7 @@ class _AdminVocabularyScreenState
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: _loadLessons,
-              icon: const Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
               label: const Text('Thử lại'),
             ),
           ],
@@ -1084,10 +940,7 @@ class _AdminVocabularyScreenState
             const SizedBox(height: 18),
             const Text(
               'Chưa có từ vựng',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -1098,9 +951,7 @@ class _AdminVocabularyScreenState
             const SizedBox(height: 10),
             OutlinedButton.icon(
               onPressed: _createSampleVocabularies,
-              icon: const Icon(
-                Icons.auto_awesome_rounded,
-              ),
+              icon: const Icon(Icons.auto_awesome_rounded),
               label: const Text('Tạo dữ liệu mẫu'),
             ),
           ],
@@ -1114,15 +965,18 @@ class _AdminVocabularyScreenState
       color: const Color(0xFF9C36B5),
       onRefresh: _refreshData,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          20,
-          20,
-          20,
-          100,
-        ),
-        children: _vocabularies
-            .map(_buildVocabularyCard)
-            .toList(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: _vocabularies.map(_buildVocabularyCard).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1133,9 +987,7 @@ class _AdminVocabularyScreenState
       appBar: AppBar(
         title: const Text(
           'Quản lý từ vựng',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF9C36B5),
         foregroundColor: Colors.white,
@@ -1143,51 +995,38 @@ class _AdminVocabularyScreenState
           IconButton(
             tooltip: 'Làm mới',
             onPressed: _refreshData,
-            icon: const Icon(
-              Icons.refresh_rounded,
-            ),
+            icon: const Icon(Icons.refresh_rounded),
           ),
         ],
       ),
       floatingActionButton: _selectedLesson == null
           ? null
           : FloatingActionButton.extended(
-              onPressed: _isAddingVocabulary
-                  ? null
-                  : _addVocabulary,
-              backgroundColor:
-                  const Color(0xFF9C36B5),
+              onPressed: _isAddingVocabulary ? null : _addVocabulary,
+              backgroundColor: const Color(0xFF9C36B5),
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add_rounded),
               label: const Text('Thêm từ vựng'),
             ),
       body: SafeArea(
         child: _isLoadingLessons
-            ? _buildLoadingView(
-                'Đang tải bài học...',
-              )
+            ? _buildLoadingView('Đang tải bài học...')
             : _errorMessage != null
-                ? _buildErrorView()
-                : _lessons.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Chưa có bài học để quản lý từ vựng.',
-                        ),
-                      )
-                    : Column(
-                        children: [
-                          _buildLessonSelector(),
-                          Expanded(
-                            child: _isLoadingVocabularies
-                                ? _buildLoadingView(
-                                    'Đang tải từ vựng...',
-                                  )
-                                : _vocabularies.isEmpty
-                                    ? _buildEmptyView()
-                                    : _buildVocabularyList(),
-                          ),
-                        ],
-                      ),
+            ? _buildErrorView()
+            : _lessons.isEmpty
+            ? const Center(child: Text('Chưa có bài học để quản lý từ vựng.'))
+            : Column(
+                children: [
+                  _buildLessonSelector(),
+                  Expanded(
+                    child: _isLoadingVocabularies
+                        ? _buildLoadingView('Đang tải từ vựng...')
+                        : _vocabularies.isEmpty
+                        ? _buildEmptyView()
+                        : _buildVocabularyList(),
+                  ),
+                ],
+              ),
       ),
     );
   }

@@ -13,18 +13,15 @@ class AdminListeningScreen extends StatefulWidget {
   const AdminListeningScreen({super.key});
 
   @override
-  State<AdminListeningScreen> createState() =>
-      _AdminListeningScreenState();
+  State<AdminListeningScreen> createState() => _AdminListeningScreenState();
 }
 
-class _AdminListeningScreenState
-    extends State<AdminListeningScreen> {
+class _AdminListeningScreenState extends State<AdminListeningScreen> {
   static const Color _accentColor = Color(0xFF0C8599);
 
   final AdminService _adminService = AdminService();
 
-  final ListeningVideoService _videoService =
-      ListeningVideoService();
+  final ListeningVideoService _videoService = ListeningVideoService();
 
   List<ListeningVideo> _videos = <ListeningVideo>[];
 
@@ -52,8 +49,8 @@ class _AdminListeningScreenState
     });
 
     try {
-      final List<ListeningVideo> videos =
-          await _videoService.getAllVideosOnce();
+      final List<ListeningVideo> videos = await _videoService
+          .getAllVideosOnce();
 
       if (!mounted) {
         return;
@@ -99,9 +96,7 @@ class _AdminListeningScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Đã kiểm tra và tạo dữ liệu bài luyện nghe mẫu.',
-          ),
+          content: Text('Đã kiểm tra và tạo dữ liệu bài luyện nghe mẫu.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -118,9 +113,7 @@ class _AdminListeningScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể tạo dữ liệu mẫu: $error',
-          ),
+          content: Text('Không thể tạo dữ liệu mẫu: $error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -135,8 +128,7 @@ class _AdminListeningScreenState
     final Uri? uri = Uri.tryParse(cleanInput);
 
     if (uri != null) {
-      if (uri.host.contains('youtu.be') &&
-          uri.pathSegments.isNotEmpty) {
+      if (uri.host.contains('youtu.be') && uri.pathSegments.isNotEmpty) {
         return uri.pathSegments.first;
       }
 
@@ -150,36 +142,29 @@ class _AdminListeningScreenState
     return cleanInput;
   }
 
-  Future<void> _showVideoForm({
-    ListeningVideo? video,
-  }) async {
+  Future<void> _showVideoForm({ListeningVideo? video}) async {
     final bool isEditing = video != null;
 
-    final TextEditingController titleController =
-        TextEditingController(text: video?.title ?? '');
+    final TextEditingController titleController = TextEditingController(
+      text: video?.title ?? '',
+    );
 
-    final TextEditingController youtubeController =
-        TextEditingController(
+    final TextEditingController youtubeController = TextEditingController(
       text: video?.youtubeVideoId ?? '',
     );
 
-    final TextEditingController descriptionController =
-        TextEditingController(
+    final TextEditingController descriptionController = TextEditingController(
       text: video?.description ?? '',
     );
 
     final TextEditingController speakingPromptController =
-        TextEditingController(
-      text: video?.speakingPrompt ?? '',
-    );
+        TextEditingController(text: video?.speakingPrompt ?? '');
 
-    final TextEditingController transcriptController =
-        TextEditingController(
+    final TextEditingController transcriptController = TextEditingController(
       text: video?.transcriptWords.join(' ') ?? '',
     );
 
-    final GlobalKey<FormState> formKey =
-        GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     String level = video?.level ?? 'beginner';
     bool isSaving = false;
@@ -189,269 +174,240 @@ class _AdminListeningScreenState
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveVideo() async {
-              if (!formKey.currentState!.validate() ||
-                  isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveVideo() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final List<String> transcriptWords =
-                  ListeningVideo.parseTranscriptText(
-                transcriptController.text,
-              );
+                  final List<String> transcriptWords =
+                      ListeningVideo.parseTranscriptText(
+                        transcriptController.text,
+                      );
 
-              final ListeningVideo videoToSave =
-                  ListeningVideo(
-                id: video?.id ?? '',
-                title: titleController.text.trim(),
-                youtubeVideoId: _extractYoutubeId(
-                  youtubeController.text,
-                ),
-                description:
-                    descriptionController.text.trim(),
-                transcriptWords: transcriptWords,
-                speakingPrompt:
-                    speakingPromptController.text.trim(),
-                level: level,
-                createdAt: video?.createdAt,
-              );
-
-              try {
-                await _adminService.requireAdmin();
-
-                if (isEditing) {
-                  await _videoService.updateVideo(
-                    videoToSave,
+                  final ListeningVideo videoToSave = ListeningVideo(
+                    id: video?.id ?? '',
+                    title: titleController.text.trim(),
+                    youtubeVideoId: _extractYoutubeId(youtubeController.text),
+                    description: descriptionController.text.trim(),
+                    transcriptWords: transcriptWords,
+                    speakingPrompt: speakingPromptController.text.trim(),
+                    level: level,
+                    createdAt: video?.createdAt,
                   );
-                } else {
-                  await _videoService.addVideo(videoToSave);
+
+                  try {
+                    await _adminService.requireAdmin();
+
+                    if (isEditing) {
+                      await _videoService.updateVideo(videoToSave);
+                    } else {
+                      await _videoService.addVideo(videoToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu bài luyện nghe: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext)
-                    .showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Không thể lưu bài luyện nghe: $error',
-                    ),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing
+                        ? 'Chỉnh sửa bài luyện nghe'
+                        : 'Thêm bài luyện nghe mới',
                   ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                isEditing
-                    ? 'Chỉnh sửa bài luyện nghe'
-                    : 'Thêm bài luyện nghe mới',
-              ),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: titleController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Tiêu đề',
-                            prefixIcon: Icon(
-                              Icons.title_rounded,
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: titleController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Tiêu đề',
+                                prefixIcon: Icon(Icons.title_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập tiêu đề';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập tiêu đề';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: youtubeController,
-                          enabled: !isSaving,
-                          textInputAction:
-                              TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Link hoặc ID video YouTube',
-                            hintText:
-                                'https://www.youtube.com/watch?v=...',
-                            prefixIcon: Icon(
-                              Icons.smart_display_rounded,
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: youtubeController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Link hoặc ID video YouTube',
+                                hintText: 'https://www.youtube.com/watch?v=...',
+                                prefixIcon: Icon(Icons.smart_display_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập link hoặc ID video';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập link hoặc ID video';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: descriptionController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: 'Mô tả',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.notes_rounded,
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: descriptionController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Mô tả',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.notes_rounded),
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        DropdownButtonFormField<String>(
-                          initialValue: level,
-                          decoration: const InputDecoration(
-                            labelText: 'Mức độ',
-                            prefixIcon: Icon(
-                              Icons.signal_cellular_alt_rounded,
+                            const SizedBox(height: 15),
+                            DropdownButtonFormField<String>(
+                              initialValue: level,
+                              decoration: const InputDecoration(
+                                labelText: 'Mức độ',
+                                prefixIcon: Icon(
+                                  Icons.signal_cellular_alt_rounded,
+                                ),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'beginner',
+                                  child: Text('Cơ bản'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'intermediate',
+                                  child: Text('Trung cấp'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'advanced',
+                                  child: Text('Nâng cao'),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (String? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
+                                      setDialogState(() {
+                                        level = value;
+                                      });
+                                    },
                             ),
-                          ),
-                          items: const [
-                            DropdownMenuItem<String>(
-                              value: 'beginner',
-                              child: Text('Cơ bản'),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: speakingPromptController,
+                              enabled: !isSaving,
+                              minLines: 2,
+                              maxLines: 4,
+                              decoration: const InputDecoration(
+                                labelText: 'Câu gợi ý luyện nói',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(
+                                  Icons.record_voice_over_rounded,
+                                ),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập câu gợi ý luyện nói';
+                                }
+                                return null;
+                              },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'intermediate',
-                              child: Text('Trung cấp'),
-                            ),
-                            DropdownMenuItem<String>(
-                              value: 'advanced',
-                              child: Text('Nâng cao'),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: transcriptController,
+                              enabled: !isSaving,
+                              minLines: 3,
+                              maxLines: 8,
+                              decoration: const InputDecoration(
+                                labelText: 'Transcript (dán cả đoạn văn bản)',
+                                hintText:
+                                    'Dán toàn bộ transcript video, hệ '
+                                    'thống sẽ tự tách thành từng từ',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.subtitles_rounded),
+                              ),
                             ),
                           ],
-                          onChanged: isSaving
-                              ? null
-                              : (String? value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-                                  setDialogState(() {
-                                    level = value;
-                                  });
-                                },
                         ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller:
-                              speakingPromptController,
-                          enabled: !isSaving,
-                          minLines: 2,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Câu gợi ý luyện nói',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.record_voice_over_rounded,
-                            ),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập câu gợi ý luyện nói';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: transcriptController,
-                          enabled: !isSaving,
-                          minLines: 3,
-                          maxLines: 8,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Transcript (dán cả đoạn văn bản)',
-                            hintText:
-                                'Dán toàn bộ transcript video, hệ '
-                                'thống sẽ tự tách thành từng từ',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(
-                              Icons.subtitles_rounded,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext)
-                              .pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSaving ? null : saveVideo,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveVideo,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm bài luyện nghe',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -486,9 +442,7 @@ class _AdminListeningScreenState
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Xóa bài luyện nghe?'),
-          content: Text(
-            'Bạn có chắc muốn xóa "${video.title}" không?',
-          ),
+          content: Text('Bạn có chắc muốn xóa "${video.title}" không?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -500,9 +454,7 @@ class _AdminListeningScreenState
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Xóa'),
             ),
           ],
@@ -550,9 +502,7 @@ class _AdminListeningScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Không thể xóa bài luyện nghe: $error',
-          ),
+          content: Text('Không thể xóa bài luyện nghe: $error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -560,8 +510,7 @@ class _AdminListeningScreenState
   }
 
   Widget _buildVideoCard(ListeningVideo video) {
-    final bool isProcessing =
-        _processingVideoId == video.id;
+    final bool isProcessing = _processingVideoId == video.id;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
@@ -569,9 +518,7 @@ class _AdminListeningScreenState
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(17),
@@ -586,8 +533,7 @@ class _AdminListeningScreenState
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color:
-                        _accentColor.withValues(alpha: 0.11),
+                    color: _accentColor.withValues(alpha: 0.11),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
@@ -599,8 +545,7 @@ class _AdminListeningScreenState
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         video.title,
@@ -617,9 +562,7 @@ class _AdminListeningScreenState
                         'transcript',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -633,17 +576,12 @@ class _AdminListeningScreenState
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceContainerHighest,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   video.speakingPrompt,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 13, height: 1.4),
                 ),
               ),
             ],
@@ -709,10 +647,7 @@ class _AdminListeningScreenState
             const SizedBox(height: 18),
             const Text(
               'Chưa có bài luyện nghe',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -728,9 +663,7 @@ class _AdminListeningScreenState
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              onPressed: _isCreatingSampleData
-                  ? null
-                  : _createSampleVideo,
+              onPressed: _isCreatingSampleData ? null : _createSampleVideo,
               icon: _isCreatingSampleData
                   ? const SizedBox(
                       width: 18,
@@ -746,9 +679,7 @@ class _AdminListeningScreenState
                     ? 'Đang tạo dữ liệu...'
                     : 'Tạo dữ liệu mẫu',
               ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _accentColor,
-              ),
+              style: OutlinedButton.styleFrom(foregroundColor: _accentColor),
             ),
           ],
         ),
@@ -788,9 +719,7 @@ class _AdminListeningScreenState
           builder: (BuildContext context) {
             if (_isLoading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: _accentColor,
-                ),
+                child: CircularProgressIndicator(color: _accentColor),
               );
             }
 
@@ -814,13 +743,18 @@ class _AdminListeningScreenState
               color: _accentColor,
               onRefresh: _loadVideos,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(
-                  20,
-                  20,
-                  20,
-                  100,
-                ),
-                children: _videos.map(_buildVideoCard).toList(),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _videos.map(_buildVideoCard).toList(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },

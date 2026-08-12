@@ -12,8 +12,7 @@ class AdminWritingScreen extends StatefulWidget {
   const AdminWritingScreen({super.key});
 
   @override
-  State<AdminWritingScreen> createState() =>
-      _AdminWritingScreenState();
+  State<AdminWritingScreen> createState() => _AdminWritingScreenState();
 }
 
 class _AdminWritingScreenState extends State<AdminWritingScreen> {
@@ -49,8 +48,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
     });
 
     try {
-      final List<WritingTask> tasks =
-          await _taskService.getAllTasksOnce();
+      final List<WritingTask> tasks = await _taskService.getAllTasksOnce();
 
       if (!mounted) {
         return;
@@ -96,9 +94,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            'Đã kiểm tra và tạo dữ liệu đề Luyện Viết mẫu.',
-          ),
+          content: Text('Đã kiểm tra và tạo dữ liệu đề Luyện Viết mẫu.'),
           backgroundColor: Colors.green,
         ),
       );
@@ -125,23 +121,27 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
   Future<void> _showTaskForm({WritingTask? task}) async {
     final bool isEditing = task != null;
 
-    final TextEditingController titleController =
-        TextEditingController(text: task?.title ?? '');
+    final TextEditingController titleController = TextEditingController(
+      text: task?.title ?? '',
+    );
 
-    final TextEditingController promptController =
-        TextEditingController(text: task?.promptText ?? '');
+    final TextEditingController promptController = TextEditingController(
+      text: task?.promptText ?? '',
+    );
 
-    final TextEditingController imageUrlController =
-        TextEditingController(text: task?.imageUrl ?? '');
+    final TextEditingController imageUrlController = TextEditingController(
+      text: task?.imageUrl ?? '',
+    );
 
-    final TextEditingController chartTypeController =
-        TextEditingController(text: task?.chartType ?? '');
+    final TextEditingController chartTypeController = TextEditingController(
+      text: task?.chartType ?? '',
+    );
 
-    final TextEditingController sourceController =
-        TextEditingController(text: task?.source ?? '');
+    final TextEditingController sourceController = TextEditingController(
+      text: task?.source ?? '',
+    );
 
-    final TextEditingController minWordsController =
-        TextEditingController(
+    final TextEditingController minWordsController = TextEditingController(
       text: (task?.minWords ?? 150).toString(),
     );
 
@@ -155,256 +155,256 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (
-            BuildContext context,
-            void Function(void Function()) setDialogState,
-          ) {
-            Future<void> saveTask() async {
-              if (!formKey.currentState!.validate() || isSaving) {
-                return;
-              }
+          builder:
+              (
+                BuildContext context,
+                void Function(void Function()) setDialogState,
+              ) {
+                Future<void> saveTask() async {
+                  if (!formKey.currentState!.validate() || isSaving) {
+                    return;
+                  }
 
-              setDialogState(() {
-                isSaving = true;
-              });
+                  setDialogState(() {
+                    isSaving = true;
+                  });
 
-              final int parsedMinWords =
-                  int.tryParse(minWordsController.text.trim()) ??
+                  final int parsedMinWords =
+                      int.tryParse(minWordsController.text.trim()) ??
                       (taskType == 'task2' ? 250 : 150);
 
-              final WritingTask taskToSave = WritingTask(
-                id: task?.id ?? '',
-                title: titleController.text.trim(),
-                taskType: taskType,
-                promptText: promptController.text.trim(),
-                imageUrl: imageUrlController.text.trim(),
-                chartType: chartTypeController.text.trim(),
-                minWords: parsedMinWords,
-                source: sourceController.text.trim(),
-                createdAt: task?.createdAt,
-              );
+                  final WritingTask taskToSave = WritingTask(
+                    id: task?.id ?? '',
+                    title: titleController.text.trim(),
+                    taskType: taskType,
+                    promptText: promptController.text.trim(),
+                    imageUrl: imageUrlController.text.trim(),
+                    chartType: chartTypeController.text.trim(),
+                    minWords: parsedMinWords,
+                    source: sourceController.text.trim(),
+                    createdAt: task?.createdAt,
+                  );
 
-              try {
-                await _adminService.requireAdmin();
+                  try {
+                    await _adminService.requireAdmin();
 
-                if (isEditing) {
-                  await _taskService.updateTask(taskToSave);
-                } else {
-                  await _taskService.addTask(taskToSave);
+                    if (isEditing) {
+                      await _taskService.updateTask(taskToSave);
+                    } else {
+                      await _taskService.addTask(taskToSave);
+                    }
+
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop(true);
+                  } catch (error) {
+                    if (!dialogContext.mounted) {
+                      return;
+                    }
+
+                    setDialogState(() {
+                      isSaving = false;
+                    });
+
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                      SnackBar(
+                        content: Text('Không thể lưu đề bài: $error'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
 
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                Navigator.of(dialogContext).pop(true);
-              } catch (error) {
-                if (!dialogContext.mounted) {
-                  return;
-                }
-
-                setDialogState(() {
-                  isSaving = false;
-                });
-
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  SnackBar(
-                    content: Text('Không thể lưu đề bài: $error'),
-                    backgroundColor: Colors.red,
+                return AlertDialog(
+                  title: Text(
+                    isEditing ? 'Chỉnh sửa đề bài' : 'Thêm đề bài mới',
                   ),
-                );
-              }
-            }
-
-            return AlertDialog(
-              title: Text(
-                isEditing ? 'Chỉnh sửa đề bài' : 'Thêm đề bài mới',
-              ),
-              content: SizedBox(
-                width: 520,
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          controller: titleController,
-                          enabled: !isSaving,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Tiêu đề',
-                            prefixIcon: Icon(Icons.title_rounded),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập tiêu đề';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        DropdownButtonFormField<String>(
-                          initialValue: taskType,
-                          decoration: const InputDecoration(
-                            labelText: 'Loại đề',
-                            prefixIcon: Icon(Icons.category_rounded),
-                          ),
-                          items: const [
-                            DropdownMenuItem<String>(
-                              value: 'task1',
-                              child: Text('Writing Task 1'),
+                  content: SizedBox(
+                    width: 520,
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: titleController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Tiêu đề',
+                                prefixIcon: Icon(Icons.title_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập tiêu đề';
+                                }
+                                return null;
+                              },
                             ),
-                            DropdownMenuItem<String>(
-                              value: 'task2',
-                              child: Text('Writing Task 2'),
-                            ),
-                          ],
-                          onChanged: isSaving
-                              ? null
-                              : (String? value) {
-                                  if (value == null) {
-                                    return;
-                                  }
+                            const SizedBox(height: 15),
+                            DropdownButtonFormField<String>(
+                              initialValue: taskType,
+                              decoration: const InputDecoration(
+                                labelText: 'Loại đề',
+                                prefixIcon: Icon(Icons.category_rounded),
+                              ),
+                              items: const [
+                                DropdownMenuItem<String>(
+                                  value: 'task1',
+                                  child: Text('Writing Task 1'),
+                                ),
+                                DropdownMenuItem<String>(
+                                  value: 'task2',
+                                  child: Text('Writing Task 2'),
+                                ),
+                              ],
+                              onChanged: isSaving
+                                  ? null
+                                  : (String? value) {
+                                      if (value == null) {
+                                        return;
+                                      }
 
-                                  setDialogState(() {
-                                    taskType = value;
+                                      setDialogState(() {
+                                        taskType = value;
 
-                                    final int? currentMinWords =
-                                        int.tryParse(
-                                      minWordsController.text.trim(),
-                                    );
+                                        final int? currentMinWords =
+                                            int.tryParse(
+                                              minWordsController.text.trim(),
+                                            );
 
-                                    final bool isDefaultValue =
-                                        currentMinWords == 150 ||
+                                        final bool isDefaultValue =
+                                            currentMinWords == 150 ||
                                             currentMinWords == 250;
 
-                                    if (isDefaultValue) {
-                                      minWordsController.text =
-                                          value == 'task2'
-                                              ? '250'
-                                              : '150';
-                                    }
-                                  });
-                                },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: promptController,
-                          enabled: !isSaving,
-                          minLines: 3,
-                          maxLines: 6,
-                          decoration: const InputDecoration(
-                            labelText: 'Đề bài (promptText)',
-                            alignLabelWithHint: true,
-                            prefixIcon: Icon(Icons.description_rounded),
-                          ),
-                          validator: (String? value) {
-                            if (value == null ||
-                                value.trim().isEmpty) {
-                              return 'Vui lòng nhập đề bài';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: imageUrlController,
-                          enabled: !isSaving,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Link ảnh biểu đồ (nếu có)',
-                            hintText: 'https://...',
-                            prefixIcon: Icon(Icons.image_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: chartTypeController,
-                          enabled: !isSaving,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'Dạng biểu đồ (line/bar/map/process/pie)',
-                            prefixIcon: Icon(Icons.bar_chart_rounded),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: minWordsController,
-                          enabled: !isSaving,
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          decoration: const InputDecoration(
-                            labelText: 'Số từ tối thiểu',
-                            prefixIcon: Icon(Icons.format_list_numbered_rounded),
-                          ),
-                          validator: (String? value) {
-                            final int? parsed =
-                                int.tryParse((value ?? '').trim());
+                                        if (isDefaultValue) {
+                                          minWordsController.text =
+                                              value == 'task2' ? '250' : '150';
+                                        }
+                                      });
+                                    },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: promptController,
+                              enabled: !isSaving,
+                              minLines: 3,
+                              maxLines: 6,
+                              decoration: const InputDecoration(
+                                labelText: 'Đề bài (promptText)',
+                                alignLabelWithHint: true,
+                                prefixIcon: Icon(Icons.description_rounded),
+                              ),
+                              validator: (String? value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Vui lòng nhập đề bài';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: imageUrlController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Link ảnh biểu đồ (nếu có)',
+                                hintText: 'https://...',
+                                prefixIcon: Icon(Icons.image_outlined),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: chartTypeController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText:
+                                    'Dạng biểu đồ (line/bar/map/process/pie)',
+                                prefixIcon: Icon(Icons.bar_chart_rounded),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: minWordsController,
+                              enabled: !isSaving,
+                              keyboardType: TextInputType.number,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Số từ tối thiểu',
+                                prefixIcon: Icon(
+                                  Icons.format_list_numbered_rounded,
+                                ),
+                              ),
+                              validator: (String? value) {
+                                final int? parsed = int.tryParse(
+                                  (value ?? '').trim(),
+                                );
 
-                            if (parsed == null || parsed <= 0) {
-                              return 'Vui lòng nhập số từ hợp lệ';
-                            }
-                            return null;
-                          },
+                                if (parsed == null || parsed <= 0) {
+                                  return 'Vui lòng nhập số từ hợp lệ';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: sourceController,
+                              enabled: !isSaving,
+                              decoration: const InputDecoration(
+                                labelText: 'Nguồn đề (nếu có)',
+                                hintText: 'Ví dụ: Cam 18 - Test 4',
+                                prefixIcon: Icon(Icons.source_outlined),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 15),
-                        TextFormField(
-                          controller: sourceController,
-                          enabled: !isSaving,
-                          decoration: const InputDecoration(
-                            labelText: 'Nguồn đề (nếu có)',
-                            hintText: 'Ví dụ: Cam 18 - Test 4',
-                            prefixIcon: Icon(Icons.source_outlined),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSaving
-                      ? null
-                      : () {
-                          Navigator.of(dialogContext).pop(false);
-                        },
-                  child: const Text('Hủy'),
-                ),
-                FilledButton.icon(
-                  onPressed: isSaving ? null : saveTask,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _accentColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Icon(
-                          isEditing
-                              ? Icons.save_rounded
-                              : Icons.add_rounded,
-                        ),
-                  label: Text(
-                    isSaving
-                        ? 'Đang lưu...'
-                        : isEditing
+                  actions: [
+                    TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () {
+                              Navigator.of(dialogContext).pop(false);
+                            },
+                      child: const Text('Hủy'),
+                    ),
+                    FilledButton.icon(
+                      onPressed: isSaving ? null : saveTask,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: isSaving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Icon(
+                              isEditing
+                                  ? Icons.save_rounded
+                                  : Icons.add_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? 'Đang lưu...'
+                            : isEditing
                             ? 'Lưu thay đổi'
                             : 'Thêm đề bài',
-                  ),
-                ),
-              ],
-            );
-          },
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -438,9 +438,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Xóa đề bài?'),
-          content: Text(
-            'Bạn có chắc muốn xóa "${task.title}" không?',
-          ),
+          content: Text('Bạn có chắc muốn xóa "${task.title}" không?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -452,9 +450,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
               onPressed: () {
                 Navigator.of(dialogContext).pop(true);
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               child: const Text('Xóa'),
             ),
           ],
@@ -518,9 +514,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
         padding: const EdgeInsets.all(17),
@@ -564,9 +558,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
                         '${task.chartType.trim().isEmpty ? '' : ' • ${task.chartType}'}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -639,18 +631,11 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.edit_note_rounded,
-              color: _accentColor,
-              size: 68,
-            ),
+            const Icon(Icons.edit_note_rounded, color: _accentColor, size: 68),
             const SizedBox(height: 18),
             const Text(
               'Chưa có đề bài Luyện Viết',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
@@ -666,8 +651,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              onPressed:
-                  _isCreatingSampleData ? null : _createSampleTask,
+              onPressed: _isCreatingSampleData ? null : _createSampleTask,
               icon: _isCreatingSampleData
                   ? const SizedBox(
                       width: 18,
@@ -683,9 +667,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
                     ? 'Đang tạo dữ liệu...'
                     : 'Tạo dữ liệu mẫu',
               ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _accentColor,
-              ),
+              style: OutlinedButton.styleFrom(foregroundColor: _accentColor),
             ),
           ],
         ),
@@ -725,9 +707,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
           builder: (BuildContext context) {
             if (_isLoading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: _accentColor,
-                ),
+                child: CircularProgressIndicator(color: _accentColor),
               );
             }
 
@@ -752,7 +732,17 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
               onRefresh: _loadTasks,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-                children: _tasks.map(_buildTaskCard).toList(),
+                children: [
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 900),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: _tasks.map(_buildTaskCard).toList(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
