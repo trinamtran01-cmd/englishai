@@ -4,8 +4,8 @@ import 'package:integration_test/integration_test_driver.dart';
 
 /// Driver chạy trên máy host. Sau khi bài test kết thúc, đọc dữ liệu
 /// ảnh chụp màn hình (được gửi lên qua binding.takeScreenshot()) từ
-/// reportData và ghi từng ảnh PNG vào thư mục ./screenshots_tuan4
-/// phục vụ báo cáo tuần 4.
+/// reportData và ghi từng ảnh PNG vào thư mục ./screenshots_tuan6
+/// phục vụ báo cáo tuần 6.
 Future<void> main() async {
   await integrationDriver(
     // Lưu ảnh đã chụp được ngay cả khi bài test thất bại giữa
@@ -22,7 +22,7 @@ Future<void> main() async {
         return;
       }
 
-      final Directory outputDir = Directory('screenshots_tuan4');
+      final Directory outputDir = Directory('screenshots_tuan6');
 
       if (!outputDir.existsSync()) {
         outputDir.createSync(recursive: true);

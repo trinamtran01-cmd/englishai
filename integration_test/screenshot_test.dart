@@ -182,7 +182,7 @@ void main() {
   }
 
   testWidgets(
-    'Đăng nhập, điều hướng và chụp ảnh 5 màn hình cho báo cáo tuần 4',
+    'Đăng nhập, điều hướng và chụp ảnh 6 màn hình cho báo cáo tuần 6',
     (WidgetTester tester) async {
       if (testEmail.isEmpty ||
           testPassword.isEmpty ||
@@ -279,6 +279,30 @@ void main() {
 
       if (sampleQuestionButton.evaluate().isNotEmpty) {
         await tapWhenReady(tester, sampleQuestionButton);
+        await tester.pump(const Duration(seconds: 3));
+      }
+
+      await tapWhenReady(tester, backButton);
+      await tester.pumpAndSettle();
+      await pumpUntilFound(tester, adminHeadline);
+
+      // ----- Tạo dữ liệu mẫu cho Luyện Shadowing (dùng ở bước chụp
+      // ảnh minh họa báo cáo tuần 6) -----
+      await scrollAndTap(tester, find.text('Quản lý luyện Shadowing'));
+      await pumpUntilFound(
+        tester,
+        find.text('Quản lý luyện Shadowing'),
+        timeout: const Duration(seconds: 30),
+      );
+      await tester.pump(const Duration(seconds: 2));
+
+      final Finder sampleShadowingButton = find.widgetWithText(
+        OutlinedButton,
+        'Tạo dữ liệu mẫu',
+      );
+
+      if (sampleShadowingButton.evaluate().isNotEmpty) {
+        await tapWhenReady(tester, sampleShadowingButton);
         await tester.pump(const Duration(seconds: 3));
       }
 
@@ -389,6 +413,64 @@ void main() {
 
       // ===== Hình 5: màn hình tiến độ học tập =====
       await binding.takeScreenshot('05_progress');
+
+      await tapWhenReady(tester, backButton);
+      await tester.pumpAndSettle();
+      await pumpUntilFound(tester, homeHeadline);
+
+      // ----- Luyện Shadowing: mở màn hình luyện tập và chụp ảnh -----
+      // Thẻ "English AI" trên trang chủ có cùng chữ với tiêu đề AppBar
+      // ('English AI'), nên dùng phần mô tả (chỉ xuất hiện đúng 1 lần)
+      // để xác định đúng thẻ cần bấm, tránh finder khớp nhầm 2 widget.
+      await scrollAndTap(
+        tester,
+        find.text(
+          '5 công cụ luyện tập tiếng Anh bằng AI: Camera từ vựng, '
+          'Từ điển, Nghe & Nói, Shadowing, Viết.',
+        ),
+      );
+      await pumpUntilFound(
+        tester,
+        find.text('Luyện Shadowing'),
+        timeout: const Duration(seconds: 30),
+      );
+      await tester.pumpAndSettle();
+
+      await scrollAndTap(tester, find.text('Luyện Shadowing'));
+
+      // Xác nhận đã điều hướng thật sự sang ShadowingLessonListScreen
+      // qua tiêu đề AppBar (khác 'English AI' của màn hình trước đó),
+      // thay vì đoán nội dung bài học mẫu cụ thể — vì Firestore trên
+      // dự án đã có sẵn dữ liệu thật từ quá trình kiểm thử thủ công
+      // trước đó, không chắc trùng tên với bài học mẫu trong code.
+      await pumpUntilFound(
+        tester,
+        find.widgetWithText(AppBar, 'Luyện Shadowing'),
+        timeout: const Duration(seconds: 30),
+      );
+
+      final Finder shadowingLessonCards = find.descendant(
+        of: find.byType(ListView),
+        matching: find.byType(Card),
+      );
+
+      await pumpUntilFound(
+        tester,
+        shadowingLessonCards,
+        timeout: const Duration(seconds: 30),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      await scrollAndTap(tester, shadowingLessonCards.first);
+      await pumpUntilFound(
+        tester,
+        find.text('Nhấn để nghe câu mẫu'),
+        timeout: const Duration(seconds: 30),
+      );
+      await tester.pumpAndSettle();
+
+      // ===== Hình 6: màn hình luyện Shadowing =====
+      await binding.takeScreenshot('06_shadowing');
     },
   );
 }
