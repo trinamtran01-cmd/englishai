@@ -101,6 +101,25 @@ class AuthService {
     await _auth.signOut();
   }
 
+  /// Gửi email đặt lại mật khẩu.
+  ///
+  /// Trả về:
+  /// - null: gửi email thành công.
+  /// - String: nội dung lỗi nếu gửi thất bại.
+  Future<String?> sendPasswordResetEmail({required String email}) async {
+    try {
+      final String cleanEmail = email.trim().toLowerCase();
+
+      await _auth.sendPasswordResetEmail(email: cleanEmail);
+
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return _mapErrorMessage(e.code);
+    } catch (e) {
+      return 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+    }
+  }
+
   /// Chuyển mã lỗi Firebase thành thông báo tiếng Việt.
   String _mapErrorMessage(String code) {
     switch (code) {
