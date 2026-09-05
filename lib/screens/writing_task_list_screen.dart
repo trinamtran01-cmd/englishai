@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../models/writing_task.dart';
 import '../services/writing_task_service.dart';
+import '../widgets/card_thumbnail.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'writing_practice_screen.dart';
 
-/// Danh sách đề bài Luyện Viết AI, chia tab Task 1 / Task 2.
+/// Danh sách đề bài Luyện Viết AI dạng lưới thẻ, chia tab
+/// Tất cả / Task 1 / Task 2.
 class WritingTaskListScreen extends StatefulWidget {
   const WritingTaskListScreen({super.key});
 
@@ -15,6 +18,7 @@ class WritingTaskListScreen extends StatefulWidget {
 
 class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
   static const Color _accentColor = Color(0xFFE8590C);
+  static const Color _sourceTagColor = Color(0xFF5C7CFA);
 
   final WritingTaskService _taskService = WritingTaskService();
 
@@ -28,30 +32,63 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
     );
   }
 
-  Widget _buildTag(String text, Color color) {
+  /// Icon + nhãn hiển thị tương ứng với từng loại biểu đồ Task 1.
+  ({IconData icon, String label}) _chartTypeDisplay(String chartType) {
+    switch (chartType.trim().toLowerCase()) {
+      case 'line':
+        return (icon: Icons.show_chart_rounded, label: 'Biểu đồ đường');
+      case 'bar':
+        return (icon: Icons.bar_chart_rounded, label: 'Biểu đồ cột');
+      case 'pie':
+        return (icon: Icons.pie_chart_rounded, label: 'Biểu đồ tròn');
+      case 'map':
+        return (icon: Icons.map_rounded, label: 'Bản đồ / sơ đồ');
+      case 'process':
+        return (icon: Icons.sync_alt_rounded, label: 'Sơ đồ quy trình');
+      case 'table':
+        return (icon: Icons.table_chart_rounded, label: 'Bảng số liệu');
+      default:
+        return (icon: Icons.insert_chart_outlined_rounded, label: chartType);
+    }
+  }
+
+  Widget _buildTag({
+    required IconData icon,
+    required String label,
+    required Color color,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: color,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTaskCard(WritingTask task) {
+    final bool hasChartType = task.chartType.trim().isNotEmpty;
+    final bool hasSource = task.source.trim().isNotEmpty;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
@@ -65,26 +102,22 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
         onTap: () {
           _openPractice(task);
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.edit_note_rounded,
-                  color: _accentColor,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CardThumbnail(
+              imageUrl: task.imageUrl,
+              placeholderIcon: Icons.description_rounded,
+              placeholderColor: _accentColor,
+              // Anh bieu do chua so lieu quan trong o sat vien - dung
+              // contain + nen trang de khong bi cat mat chi tiet, khac
+              // voi anh thumbnail video (cover) o cac man hinh khac.
+              fit: BoxFit.contain,
+              backgroundColor: Colors.white,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -93,37 +126,39 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
+                        height: 1.25,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       'Tối thiểu ${task.minWords} từ',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Theme.of(context)
                             .colorScheme
                             .onSurfaceVariant,
                       ),
                     ),
-                    if (task.chartType.trim().isNotEmpty ||
-                        task.source.trim().isNotEmpty) ...[
+                    if (hasChartType || hasSource) ...[
                       const SizedBox(height: 8),
                       Wrap(
-                        spacing: 8,
+                        spacing: 6,
                         runSpacing: 6,
                         children: [
-                          if (task.chartType.trim().isNotEmpty)
+                          if (hasChartType)
                             _buildTag(
-                              task.chartType.trim(),
-                              _accentColor,
+                              icon: _chartTypeDisplay(task.chartType).icon,
+                              label: _chartTypeDisplay(task.chartType).label,
+                              color: _accentColor,
                             ),
-                          if (task.source.trim().isNotEmpty)
+                          if (hasSource)
                             _buildTag(
-                              task.source.trim(),
-                              const Color(0xFF364FC7),
+                              icon: Icons.menu_book_rounded,
+                              label: task.source.trim(),
+                              color: _sourceTagColor,
                             ),
                         ],
                       ),
@@ -131,13 +166,8 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -242,9 +272,26 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
     );
   }
 
+  /// Lưới thẻ đề bài, tự tính số cột theo chiều rộng khả dụng: màn
+  /// hình rộng (web) 3 cột, hẹp hơn (mobile) 2 cột.
+  Widget _buildTaskGrid(List<WritingTask> tasks) {
+    if (tasks.isEmpty) {
+      return _buildEmptyView();
+    }
+
+    return ResponsiveCardGrid(
+      thumbnailAspectRatio: 16 / 9,
+      contentHeight: 165,
+      itemCount: tasks.length,
+      itemBuilder: (BuildContext context, int index) {
+        return _buildTaskCard(tasks[index]);
+      },
+    );
+  }
+
   Widget _buildTaskList(
     AsyncSnapshot<List<WritingTask>> snapshot,
-    String taskType,
+    String? taskType,
   ) {
     if (snapshot.connectionState == ConnectionState.waiting &&
         !snapshot.hasData) {
@@ -255,27 +302,24 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
       return _buildErrorView(snapshot.error.toString());
     }
 
-    final List<WritingTask> tasks = (snapshot.data ?? <WritingTask>[])
-        .where(
-          (WritingTask task) =>
-              task.taskType.trim().toLowerCase() == taskType,
-        )
-        .toList();
+    final List<WritingTask> allTasks = snapshot.data ?? <WritingTask>[];
 
-    if (tasks.isEmpty) {
-      return _buildEmptyView();
-    }
+    final List<WritingTask> tasks = taskType == null
+        ? allTasks
+        : allTasks
+            .where(
+              (WritingTask task) =>
+                  task.taskType.trim().toLowerCase() == taskType,
+            )
+            .toList();
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      children: tasks.map(_buildTaskCard).toList(),
-    );
+    return _buildTaskGrid(tasks);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -290,6 +334,7 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             tabs: [
+              Tab(text: 'Tất cả'),
               Tab(text: 'Task 1'),
               Tab(text: 'Task 2'),
             ],
@@ -304,6 +349,7 @@ class _WritingTaskListScreenState extends State<WritingTaskListScreen> {
             ) {
               return TabBarView(
                 children: [
+                  _buildTaskList(snapshot, null),
                   _buildTaskList(snapshot, 'task1'),
                   _buildTaskList(snapshot, 'task2'),
                 ],

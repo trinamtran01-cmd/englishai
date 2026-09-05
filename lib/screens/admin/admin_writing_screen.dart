@@ -145,6 +145,10 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
       text: (task?.minWords ?? 150).toString(),
     );
 
+    final TextEditingController timeLimitController = TextEditingController(
+      text: (task?.timeLimitMinutes ?? 20).toString(),
+    );
+
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     String taskType = task?.taskType ?? 'task1';
@@ -173,6 +177,9 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
                       int.tryParse(minWordsController.text.trim()) ??
                       (taskType == 'task2' ? 250 : 150);
 
+                  final int parsedTimeLimit =
+                      int.tryParse(timeLimitController.text.trim()) ?? 20;
+
                   final WritingTask taskToSave = WritingTask(
                     id: task?.id ?? '',
                     title: titleController.text.trim(),
@@ -182,6 +189,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
                     chartType: chartTypeController.text.trim(),
                     minWords: parsedMinWords,
                     source: sourceController.text.trim(),
+                    timeLimitMinutes: parsedTimeLimit,
                     createdAt: task?.createdAt,
                   );
 
@@ -360,6 +368,26 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
                                 prefixIcon: Icon(Icons.source_outlined),
                               ),
                             ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: timeLimitController,
+                              enabled: !isSaving,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Thời gian làm bài (phút)',
+                                prefixIcon: Icon(Icons.timer_outlined),
+                              ),
+                              validator: (String? value) {
+                                final int? parsed = int.tryParse(
+                                  (value ?? '').trim(),
+                                );
+
+                                if (parsed == null || parsed <= 0) {
+                                  return 'Vui lòng nhập số phút hợp lệ';
+                                }
+                                return null;
+                              },
+                            ),
                           ],
                         ),
                       ),
@@ -415,6 +443,7 @@ class _AdminWritingScreenState extends State<AdminWritingScreen> {
     chartTypeController.dispose();
     sourceController.dispose();
     minWordsController.dispose();
+    timeLimitController.dispose();
 
     if (wasSaved != true || !mounted) {
       return;

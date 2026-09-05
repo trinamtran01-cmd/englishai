@@ -14,6 +14,7 @@ class WritingTask {
   final String chartType;
   final int minWords;
   final String source;
+  final int timeLimitMinutes;
   final DateTime? createdAt;
 
   const WritingTask({
@@ -25,6 +26,7 @@ class WritingTask {
     required this.chartType,
     required this.minWords,
     required this.source,
+    this.timeLimitMinutes = 20,
     this.createdAt,
   });
 
@@ -47,6 +49,7 @@ class WritingTask {
         data['taskType'] as String? ?? 'task1',
       ),
       source: data['source'] as String? ?? '',
+      timeLimitMinutes: _parseTimeLimitMinutes(data['timeLimitMinutes']),
       createdAt: _parseDateTime(data['createdAt']),
     );
   }
@@ -68,6 +71,7 @@ class WritingTask {
         data['taskType'] as String? ?? 'task1',
       ),
       source: data['source'] as String? ?? '',
+      timeLimitMinutes: _parseTimeLimitMinutes(data['timeLimitMinutes']),
       createdAt: _parseDateTime(data['createdAt']),
     );
   }
@@ -82,6 +86,7 @@ class WritingTask {
       'chartType': chartType.trim().toLowerCase(),
       'minWords': minWords,
       'source': source.trim(),
+      'timeLimitMinutes': timeLimitMinutes,
       'createdAt': createdAt == null
           ? FieldValue.serverTimestamp()
           : Timestamp.fromDate(createdAt!),
@@ -98,6 +103,7 @@ class WritingTask {
     String? chartType,
     int? minWords,
     String? source,
+    int? timeLimitMinutes,
     DateTime? createdAt,
   }) {
     return WritingTask(
@@ -109,6 +115,7 @@ class WritingTask {
       chartType: chartType ?? this.chartType,
       minWords: minWords ?? this.minWords,
       source: source ?? this.source,
+      timeLimitMinutes: timeLimitMinutes ?? this.timeLimitMinutes,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -139,6 +146,21 @@ class WritingTask {
     }
 
     return taskType.trim().toLowerCase() == 'task2' ? 250 : 150;
+  }
+
+  /// Thời gian làm bài (phút), mặc định 20 phút khi Firestore chưa
+  /// có sẵn giá trị `timeLimitMinutes` (đề tạo trước khi có tính
+  /// năng đếm giờ).
+  static int _parseTimeLimitMinutes(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return 20;
   }
 
   /// Chuyển Timestamp hoặc DateTime thành DateTime.
