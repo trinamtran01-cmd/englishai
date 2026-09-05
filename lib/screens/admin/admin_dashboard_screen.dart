@@ -19,6 +19,9 @@ class AdminDashboardScreen extends StatefulWidget {
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  static const double _wideLayoutBreakpoint = 900;
+  static const double _sidebarWidth = 268;
+
   final AdminService _adminService = AdminService();
   final AuthService _authService = AuthService();
 
@@ -266,6 +269,199 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     await _loadDashboard();
   }
 
+  /// Danh sách nhóm chức năng quản lý, dùng chung cho cả sidebar
+  /// web và danh sách mobile - tránh khai 2 lần cùng 1 danh sách.
+  List<_AdminNavGroup> _buildManagementGroups() {
+    return [
+      _AdminNavGroup(
+        title: 'Nội dung học tập',
+        items: [
+          _AdminNavItem(
+            icon: Icons.menu_book_rounded,
+            title: 'Quản lý bài học',
+            description: 'Thêm, sửa, xóa và thay đổi trạng thái bài học.',
+            color: const Color(0xFF3B5BDB),
+            onTap: _openLessonManagement,
+          ),
+          _AdminNavItem(
+            icon: Icons.translate_rounded,
+            title: 'Quản lý từ vựng',
+            description: 'Thêm, sửa, xóa và quản lý từ vựng theo bài học.',
+            color: const Color(0xFF9C36B5),
+            onTap: _openVocabularyManagement,
+          ),
+          _AdminNavItem(
+            icon: Icons.quiz_rounded,
+            title: 'Quản lý câu hỏi',
+            description: 'Thêm, sửa, xóa và chọn đáp án đúng cho câu hỏi.',
+            color: const Color(0xFFF59F00),
+            onTap: _openQuestionManagement,
+          ),
+          _AdminNavItem(
+            icon: Icons.headphones_rounded,
+            title: 'Quản lý luyện nghe & nói',
+            description:
+                'Thêm, sửa, xóa video luyện nghe và câu gợi ý luyện nói.',
+            color: const Color(0xFF0C8599),
+            onTap: _openListeningManagement,
+          ),
+          _AdminNavItem(
+            icon: Icons.record_voice_over_rounded,
+            title: 'Quản lý luyện Shadowing',
+            description:
+                'Thêm, sửa, xóa bài luyện Shadowing và từng câu bên trong.',
+            color: const Color(0xFF7048E8),
+            onTap: _openShadowingManagement,
+          ),
+          _AdminNavItem(
+            icon: Icons.edit_note_rounded,
+            title: 'Quản lý Luyện Viết AI',
+            description: 'Thêm, sửa, xóa đề bài Writing Task 1/Task 2.',
+            color: const Color(0xFFE8590C),
+            onTap: _openWritingManagement,
+          ),
+        ],
+      ),
+      _AdminNavGroup(
+        title: 'Người dùng',
+        items: [
+          _AdminNavItem(
+            icon: Icons.manage_accounts_rounded,
+            title: 'Quản lý tài khoản',
+            description: 'Xem, tìm kiếm, lọc và thiết lập quyền tài khoản.',
+            color: const Color(0xFF0C8599),
+            onTap: _openUserManagement,
+          ),
+        ],
+      ),
+      _AdminNavGroup(
+        title: 'Hệ thống',
+        items: [
+          _AdminNavItem(
+            icon: Icons.toggle_on_rounded,
+            title: 'Quản lý tính năng',
+            description: 'Tạm bật/tắt từng tính năng trên trang chủ học viên.',
+            color: const Color(0xFF364FC7),
+            onTap: _openFeatureFlagsManagement,
+          ),
+        ],
+      ),
+    ];
+  }
+
+  /// Sidebar cố định bên trái cho layout web - menu quản lý gọn
+  /// (icon + tên), gom nhóm theo danh mục. Vẫn điều hướng bằng
+  /// `Navigator.push` như trước (không nhúng nội dung con trực tiếp
+  /// vào panel bên phải) để giữ đơn giản/ổn định, nên không có khái
+  /// niệm "mục đang chọn" cố định xuyên suốt - chỉ có hiệu ứng hover
+  /// khi rê chuột.
+  Widget _buildSidebar() {
+    final List<_AdminNavGroup> groups = _buildManagementGroups();
+
+    return Container(
+      width: _sidebarWidth,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          right: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        children: [
+          for (final _AdminNavGroup group in groups) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Text(
+                group.title.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.6,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            for (final _AdminNavItem item in group.items)
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: item.onTap,
+                  hoverColor: item.color.withValues(alpha: 0.08),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(item.icon, color: item.color, size: 20),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            item.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Danh sách chức năng quản lý cho mobile - gom nhóm bằng tiêu đề
+  /// nhỏ để đồng bộ cách tổ chức thông tin với sidebar web, nhưng
+  /// vẫn là danh sách thẻ đầy đủ (icon + mô tả) xếp dọc như trước.
+  Widget _buildGroupedManagementList() {
+    final List<_AdminNavGroup> groups = _buildManagementGroups();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) ...[
+          if (groupIndex > 0) const SizedBox(height: 22),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              groups[groupIndex].title.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          for (int itemIndex = 0;
+              itemIndex < groups[groupIndex].items.length;
+              itemIndex++) ...[
+            if (itemIndex > 0) const SizedBox(height: 12),
+            _buildManagementCard(
+              icon: groups[groupIndex].items[itemIndex].icon,
+              title: groups[groupIndex].items[itemIndex].title,
+              description: groups[groupIndex].items[itemIndex].description,
+              color: groups[groupIndex].items[itemIndex].color,
+              onTap: groups[groupIndex].items[itemIndex].onTap,
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+
   Widget _buildStatisticCard({
     required IconData icon,
     required String value,
@@ -493,7 +689,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildDashboardContent() {
+  Widget _buildDashboardContent({required bool includeManagementList}) {
     final int totalUsers = _statistics['totalUsers'] ?? 0;
 
     final int totalStudents = _statistics['totalStudents'] ?? 0;
@@ -529,11 +725,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 totalVocabularies: totalVocabularies,
                 totalQuestions: totalQuestions,
                 totalQuizResults: totalQuizResults,
+                includeManagementList: includeManagementList,
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  /// Bố cục web: sidebar cố định bên trái + nội dung tổng quan bên
+  /// phải (không lặp lại danh sách chức năng quản lý vì đã có trong
+  /// sidebar).
+  Widget _buildWideDashboard() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSidebar(),
+        Expanded(
+          child: _buildDashboardContent(includeManagementList: false),
+        ),
+      ],
     );
   }
 
@@ -550,6 +762,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required int totalVocabularies,
     required int totalQuestions,
     required int totalQuizResults,
+    required bool includeManagementList,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -665,89 +878,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 30),
-        Text(
-          'Chức năng quản lý',
-          style: TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+        if (includeManagementList) ...[
+          const SizedBox(height: 30),
+          Text(
+            'Chức năng quản lý',
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-        ),
-        const SizedBox(height: 7),
-        Text(
-          'Chọn nội dung cần quản lý.',
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          const SizedBox(height: 7),
+          Text(
+            'Chọn nội dung cần quản lý.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 17),
-        _buildManagementCard(
-          icon: Icons.menu_book_rounded,
-          title: 'Quản lý bài học',
-          description: 'Thêm, sửa, xóa và thay đổi trạng thái bài học.',
-          color: const Color(0xFF3B5BDB),
-          onTap: _openLessonManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.translate_rounded,
-          title: 'Quản lý từ vựng',
-          description: 'Thêm, sửa, xóa và quản lý từ vựng theo bài học.',
-          color: const Color(0xFF9C36B5),
-          onTap: _openVocabularyManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.quiz_rounded,
-          title: 'Quản lý câu hỏi',
-          description: 'Thêm, sửa, xóa và chọn đáp án đúng cho câu hỏi.',
-          color: const Color(0xFFF59F00),
-          onTap: _openQuestionManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.manage_accounts_rounded,
-          title: 'Quản lý tài khoản',
-          description: 'Xem, tìm kiếm, lọc và thiết lập quyền tài khoản.',
-          color: const Color(0xFF0C8599),
-          onTap: _openUserManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.headphones_rounded,
-          title: 'Quản lý luyện nghe & nói',
-          description:
-              'Thêm, sửa, xóa video luyện nghe và câu gợi ý luyện nói.',
-          color: const Color(0xFF0C8599),
-          onTap: _openListeningManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.record_voice_over_rounded,
-          title: 'Quản lý luyện Shadowing',
-          description:
-              'Thêm, sửa, xóa bài luyện Shadowing và từng câu bên trong.',
-          color: const Color(0xFF7048E8),
-          onTap: _openShadowingManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.edit_note_rounded,
-          title: 'Quản lý Luyện Viết AI',
-          description: 'Thêm, sửa, xóa đề bài Writing Task 1/Task 2.',
-          color: const Color(0xFFE8590C),
-          onTap: _openWritingManagement,
-        ),
-        const SizedBox(height: 12),
-        _buildManagementCard(
-          icon: Icons.toggle_on_rounded,
-          title: 'Quản lý tính năng',
-          description: 'Tạm bật/tắt từng tính năng trên trang chủ học viên.',
-          color: const Color(0xFF364FC7),
-          onTap: _openFeatureFlagsManagement,
-        ),
+          const SizedBox(height: 17),
+          _buildGroupedManagementList(),
+        ],
       ],
     );
   }
@@ -862,8 +1013,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ? _buildLoadingView()
             : _errorMessage != null
             ? _buildErrorView(_errorMessage!)
-            : _buildDashboardContent(),
+            : LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final bool isWide =
+                      constraints.maxWidth >= _wideLayoutBreakpoint;
+
+                  if (isWide) {
+                    return _buildWideDashboard();
+                  }
+
+                  return _buildDashboardContent(includeManagementList: true);
+                },
+              ),
       ),
     );
   }
+}
+
+/// 1 nhóm chức năng quản lý (tiêu đề + danh sách mục), dùng chung
+/// cho sidebar web và danh sách mobile của `AdminDashboardScreen`.
+class _AdminNavGroup {
+  final String title;
+  final List<_AdminNavItem> items;
+
+  const _AdminNavGroup({required this.title, required this.items});
+}
+
+/// 1 mục điều hướng quản lý trong `_AdminNavGroup`.
+class _AdminNavItem {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _AdminNavItem({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.onTap,
+  });
 }

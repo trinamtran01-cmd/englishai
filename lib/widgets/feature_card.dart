@@ -72,23 +72,26 @@ class FeatureCard extends StatelessWidget {
                     ),
                   );
                 },
+          // Hiệu ứng hover nhẹ trên web/desktop khi rê chuột (không
+          // ảnh hưởng gì trên mobile vì không có con trỏ chuột).
+          hoverColor: color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(18),
             child: Row(
               children: [
                 Container(
-                  width: 54,
-                  height: 54,
+                  width: 60,
+                  height: 60,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Icon(
                     icon,
                     color: color,
-                    size: 29,
+                    size: 32,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -119,6 +122,8 @@ class FeatureCard extends StatelessWidget {
                       const SizedBox(height: 5),
                       Text(
                         description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 13,
                           height: 1.4,
