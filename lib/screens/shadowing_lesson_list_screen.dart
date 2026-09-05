@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/shadowing_lesson.dart';
 import '../services/shadowing_lesson_service.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'shadowing_practice_screen.dart';
 
 /// Danh sách các bài luyện Shadowing (nghe & nhại lại câu) dành cho
@@ -46,11 +47,83 @@ class _ShadowingLessonListScreenState
     }
   }
 
+  /// Icon theo từng chủ đề Shadowing (khóa `iconName` do Firestore
+  /// lưu). Trả về icon mặc định nếu bài chưa gán hoặc gán key lạ -
+  /// giữ tương thích ngược với các bài Shadowing mẫu cũ chưa có
+  /// trường này.
+  IconData _iconForName(String iconName) {
+    switch (iconName.trim().toLowerCase()) {
+      case 'workplace':
+        return Icons.work_outline_rounded;
+      case 'restaurant':
+        return Icons.restaurant_rounded;
+      case 'flight':
+        return Icons.flight_takeoff_rounded;
+      case 'badge':
+        return Icons.badge_rounded;
+      case 'shopping_bag':
+        return Icons.shopping_bag_rounded;
+      case 'map':
+        return Icons.signpost_rounded;
+      case 'call':
+        return Icons.call_rounded;
+      case 'person':
+        return Icons.person_rounded;
+      case 'weather':
+        return Icons.wb_cloudy_rounded;
+      case 'health':
+        return Icons.medical_services_rounded;
+      case 'bank':
+        return Icons.account_balance_rounded;
+      case 'travel':
+        return Icons.luggage_rounded;
+      case 'technology':
+        return Icons.devices_rounded;
+      case 'family':
+        return Icons.family_restroom_rounded;
+      case 'hobbies':
+        return Icons.palette_rounded;
+      case 'sports':
+        return Icons.sports_soccer_rounded;
+      case 'study':
+        return Icons.school_rounded;
+      case 'cafe':
+        return Icons.local_cafe_rounded;
+      case 'apology':
+        return Icons.volunteer_activism_rounded;
+      case 'negotiation':
+        return Icons.handshake_rounded;
+      default:
+        return Icons.record_voice_over_rounded;
+    }
+  }
+
+  /// Chuyển mã hex ("#4A6FA5" hoặc "4A6FA5") thành [Color]. Trả về
+  /// null nếu chuỗi rỗng hoặc không hợp lệ, để màn hình dùng màu mặc
+  /// định thay vì crash.
+  Color? _parseThemeColor(String themeColor) {
+    final String hex = themeColor.trim().replaceFirst('#', '');
+
+    if (hex.length != 6) {
+      return null;
+    }
+
+    final int? value = int.tryParse('FF$hex', radix: 16);
+
+    if (value == null) {
+      return null;
+    }
+
+    return Color(value);
+  }
+
   Widget _buildLessonCard(ShadowingLesson lesson) {
     final Color levelColor = _levelColor(lesson.level);
+    final Color themeColor = _parseThemeColor(lesson.themeColor) ?? _accentColor;
+    final IconData themeIcon = _iconForName(lesson.iconName);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
@@ -64,36 +137,70 @@ class _ShadowingLessonListScreenState
         onTap: () {
           _openPractice(lesson);
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _accentColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Icon(
-                  Icons.record_voice_over_rounded,
-                  color: _accentColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 108,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    themeColor.withValues(alpha: 0.85),
+                    themeColor.withValues(alpha: 0.5),
+                  ],
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
+              child: Icon(
+                themeIcon,
+                color: Colors.white,
+                size: 42,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      lesson.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.25,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    if (lesson.description.trim().isNotEmpty)
+                      Expanded(
+                        child: Text(
+                          lesson.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.35,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    else
+                      const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
+                        horizontal: 8,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: levelColor.withValues(alpha: 0.12),
+                        color: levelColor.withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -105,40 +212,11 @@ class _ShadowingLessonListScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      lesson.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    if (lesson.description.trim().isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        lesson.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -319,14 +397,12 @@ class _ShadowingLessonListScreenState
                     return _buildEmptyView();
                   }
 
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      20,
-                      20,
-                      20,
-                      32,
-                    ),
-                    children: lessons.map(_buildLessonCard).toList(),
+                  return ResponsiveCardGrid(
+                    cardHeight: 236,
+                    itemCount: lessons.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildLessonCard(lessons[index]);
+                    },
                   );
                 },
               ),

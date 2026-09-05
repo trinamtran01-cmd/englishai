@@ -4,6 +4,7 @@ import '../models/lesson.dart';
 import '../models/quiz_question.dart';
 import '../services/lesson_service.dart';
 import '../services/quiz_service.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'quiz_screen.dart';
 
 class QuizListScreen extends StatefulWidget {
@@ -326,7 +327,7 @@ class _QuizListScreenState extends State<QuizListScreen> {
             _loadingLessonId != lesson.id;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       clipBehavior: Clip.antiAlias,
@@ -342,50 +343,51 @@ class _QuizListScreenState extends State<QuizListScreen> {
             : () {
                 _prepareQuiz(lesson);
               },
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: lessonColor.withValues(
-                    alpha: 0.12,
-                  ),
-                  borderRadius:
-                      BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  _getLessonIcon(lesson.icon),
-                  color: lessonColor,
-                  size: 31,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 108,
+              alignment: Alignment.center,
+              color: lessonColor.withValues(alpha: 0.12),
+              child: isLoading
+                  ? SizedBox(
+                      width: 28,
+                      height: 28,
+                      child: CircularProgressIndicator(
+                        color: lessonColor,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Icon(
+                      _getLessonIcon(lesson.icon),
+                      color: lessonColor,
+                      size: 42,
+                    ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Bài kiểm tra $lessonNumber',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: lessonColor,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 6),
                     Text(
                       lesson.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
+                        height: 1.25,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -395,42 +397,15 @@ class _QuizListScreenState extends State<QuizListScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              if (isLoading)
-                SizedBox(
-                  width: 25,
-                  height: 25,
-                  child: CircularProgressIndicator(
-                    color: lessonColor,
-                    strokeWidth: 2.5,
-                  ),
-                )
-              else
-                Container(
-                  width: 38,
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: lessonColor.withValues(
-                      alpha: 0.10,
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    color: lessonColor,
-                    size: 23,
-                  ),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -575,20 +550,12 @@ class _QuizListScreenState extends State<QuizListScreen> {
           const Duration(milliseconds: 400),
         );
       },
-      child: ListView.builder(
-        physics:
-            const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          20,
-          22,
-          20,
-          32,
-        ),
+      child: ResponsiveCardGrid(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
+        cardHeight: 236,
         itemCount: lessons.length,
-        itemBuilder: (
-          BuildContext context,
-          int index,
-        ) {
+        itemBuilder: (BuildContext context, int index) {
           return _buildLessonCard(
             lesson: lessons[index],
             lessonNumber: index + 1,

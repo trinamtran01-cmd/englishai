@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/lesson.dart';
 import '../services/lesson_service.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'lesson_detail_screen.dart';
 
 class LessonListScreen extends StatefulWidget {
@@ -111,7 +112,7 @@ class _LessonListScreenState
         _getLessonIcon(lesson.icon);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
@@ -125,51 +126,44 @@ class _LessonListScreenState
         onTap: () {
           _openLesson(lesson);
         },
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: lessonColor.withValues(
-                    alpha: 0.12,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  lessonIcon,
-                  color: lessonColor,
-                  size: 31,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 108,
+              alignment: Alignment.center,
+              color: lessonColor.withValues(alpha: 0.12),
+              child: Icon(
+                lessonIcon,
+                color: lessonColor,
+                size: 42,
               ),
-              const SizedBox(width: 16),
-              Expanded(
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Bài $lessonNumber • ${lesson.topic}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: lessonColor,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 6),
                     Text(
                       lesson.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
+                        height: 1.25,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -179,33 +173,16 @@ class _LessonListScreenState
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
-                        height: 1.4,
+                        fontSize: 12,
+                        height: 1.35,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
-              Container(
-                width: 34,
-                height: 34,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: lessonColor.withValues(
-                    alpha: 0.1,
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
-                  color: lessonColor,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -371,19 +348,12 @@ class _LessonListScreenState
     return RefreshIndicator(
       color: const Color(0xFF3B5BDB),
       onRefresh: _prepareSampleLessons,
-      child: ListView.builder(
+      child: ResponsiveCardGrid(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(
-          20,
-          22,
-          20,
-          32,
-        ),
+        padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
+        cardHeight: 252,
         itemCount: lessons.length,
-        itemBuilder: (
-          BuildContext context,
-          int index,
-        ) {
+        itemBuilder: (BuildContext context, int index) {
           return _buildLessonCard(
             lesson: lessons[index],
             lessonNumber: index + 1,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/listening_video.dart';
 import '../services/listening_video_service.dart';
+import '../widgets/card_thumbnail.dart';
+import '../widgets/responsive_card_grid.dart';
 import 'listening_practice_screen.dart';
 
 /// Danh sách các bài luyện nghe & nói AI dành cho học viên.
@@ -45,58 +47,11 @@ class _ListeningVideoListScreenState
     }
   }
 
-  Widget _buildThumbnail(ListeningVideo video) {
-    if (video.thumbnailUrl.isEmpty) {
-      return Container(
-        width: 96,
-        height: 72,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: _accentColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Icon(
-          Icons.headphones_rounded,
-          color: _accentColor,
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.network(
-        video.thumbnailUrl,
-        width: 96,
-        height: 72,
-        fit: BoxFit.cover,
-        errorBuilder: (
-          BuildContext context,
-          Object error,
-          StackTrace? stackTrace,
-        ) {
-          return Container(
-            width: 96,
-            height: 72,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: _accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.headphones_rounded,
-              color: _accentColor,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildVideoCard(ListeningVideo video) {
     final Color levelColor = _levelColor(video.level);
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
@@ -110,28 +65,57 @@ class _ListeningVideoListScreenState
         onTap: () {
           _openPractice(video);
         },
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildThumbnail(video),
-              const SizedBox(width: 14),
-              Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CardThumbnail(
+              imageUrl: video.thumbnailUrl,
+              placeholderIcon: Icons.headphones_rounded,
+              placeholderColor: _accentColor,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      video.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.25,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    if (video.description.trim().isNotEmpty)
+                      Expanded(
+                        child: Text(
+                          video.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.35,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                        ),
+                      )
+                    else
+                      const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
+                        horizontal: 8,
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            levelColor.withValues(alpha: 0.12),
-                        borderRadius:
-                            BorderRadius.circular(20),
+                        color: levelColor.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         video.levelLabel,
@@ -142,40 +126,11 @@ class _ListeningVideoListScreenState
                         ),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      video.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    if (video.description.trim().isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        video.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.4,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -360,15 +315,13 @@ class _ListeningVideoListScreenState
                     return _buildEmptyView();
                   }
 
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      20,
-                      20,
-                      20,
-                      32,
-                    ),
-                    children:
-                        videos.map(_buildVideoCard).toList(),
+                  return ResponsiveCardGrid(
+                    thumbnailAspectRatio: 16 / 9,
+                    contentHeight: 128,
+                    itemCount: videos.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildVideoCard(videos[index]);
+                    },
                   );
                 },
               ),
