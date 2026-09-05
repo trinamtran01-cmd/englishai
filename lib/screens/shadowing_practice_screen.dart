@@ -89,6 +89,21 @@ class _ShadowingPracticeScreenState
     super.initState();
     _configureTts();
     _loadSegments();
+
+    // Khi phát audio dựng sẵn (Gemini TTS) qua _audioPlayer, cần tự
+    // tắt trạng thái "đang nói" lúc phát xong - flutter_tts có
+    // completion handler riêng, audioplayers thì qua stream này.
+    // Cùng 1 player còn được dùng để phát lại bản ghi âm của người
+    // dùng (_playRecordedAudio) - vô hại vì _isSpeaking lúc đó vốn
+    // đã là false.
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isSpeaking = false;
+      });
+    });
   }
 
   @override
@@ -129,6 +144,8 @@ class _ShadowingPracticeScreenState
     await _flutterTts.setVolume(1.0);
     await _flutterTts.setPitch(1.0);
 
+    await _selectBestEnglishVoice();
+
     _flutterTts.setCompletionHandler(() {
       if (!mounted) {
         return;
@@ -146,6 +163,80 @@ class _ShadowingPracticeScreenState
         _isSpeaking = false;
       });
     });
+  }
+
+  /// Chọn giọng đọc tiếng Anh (Mỹ) tự nhiên nhất hiện có trên thiết
+  /// bị thay vì giọng mặc định của hệ thống.
+  ///
+  /// Cùng 1 ngôn ngữ nhưng máy/engine TTS thường cài sẵn nhiều giọng
+  /// chất lượng khác nhau (`getVoices()` liệt kê hết) - giọng có tên
+  /// gợi ý "network"/"enhanced"/"neural"/"wavenet" hay giọng
+  /// "Google US English" thường tự nhiên hơn hẳn giọng ngoại tuyến
+  /// cơ bản mặc định. Nếu không liệt kê được giọng (một số trình
+  /// duyệt web hạn chế) thì bỏ qua, giữ nguyên giọng mặc định - không
+  /// làm gián đoạn luồng chính.
+  Future<void> _selectBestEnglishVoice() async {
+    try {
+      final dynamic rawVoices = await _flutterTts.getVoices;
+
+      if (rawVoices is! List) {
+        return;
+      }
+
+      final List<Map<String, String>> englishVoices = <Map<String, String>>[];
+
+      for (final dynamic entry in rawVoices) {
+        if (entry is! Map) {
+          continue;
+        }
+
+        final String name = (entry['name'] ?? '').toString();
+        final String locale = (entry['locale'] ?? '').toString();
+        final String normalizedLocale =
+            locale.toLowerCase().replaceAll('_', '-');
+
+        if (name.isNotEmpty && normalizedLocale.startsWith('en-us')) {
+          englishVoices.add({'name': name, 'locale': locale});
+        }
+      }
+
+      if (englishVoices.isEmpty) {
+        return;
+      }
+
+      const List<String> preferredKeywords = [
+        'google us english',
+        'network',
+        'enhanced',
+        'premium',
+        'neural',
+        'wavenet',
+      ];
+
+      Map<String, String>? bestVoice;
+
+      for (final String keyword in preferredKeywords) {
+        for (final Map<String, String> voice in englishVoices) {
+          if (voice['name']!.toLowerCase().contains(keyword)) {
+            bestVoice = voice;
+            break;
+          }
+        }
+
+        if (bestVoice != null) {
+          break;
+        }
+      }
+
+      bestVoice ??= englishVoices.first;
+
+      await _flutterTts.setVoice({
+        'name': bestVoice['name']!,
+        'locale': bestVoice['locale']!,
+      });
+    } catch (_) {
+      // Không thể liệt kê/chọn giọng - giữ nguyên giọng mặc định.
+    }
   }
 
   Future<void> _loadSegments() async {
@@ -196,8 +287,36 @@ class _ShadowingPracticeScreenState
       _isSpeaking = true;
     });
 
+    final String audioUrl = _currentSegment.audioUrl.trim();
+
+    if (audioUrl.isNotEmpty) {
+      try {
+        await _audioPlayer.stop();
+        await _audioPlayer.setPlaybackRate(_playbackRateForSpeechRate(_speechRate));
+        await _audioPlayer.play(UrlSource(audioUrl));
+        return;
+      } catch (error) {
+        // Audio dựng sẵn lỗi (mạng chập chờn, link hỏng...) - rơi
+        // xuống dùng flutter_tts thay vì để người dùng không nghe
+        // được gì cả.
+      }
+    }
+
     await _flutterTts.stop();
     await _flutterTts.speak(_currentSegment.text);
+  }
+
+  /// Quy đổi tốc độ đọc kiểu flutter_tts (0.3/0.45/0.6) sang tốc độ
+  /// phát lại của audioplayers (1.0 = bình thường), giữ đúng 3 mức
+  /// Chậm/Vừa/Nhanh cho cả 2 đường phát âm thanh.
+  double _playbackRateForSpeechRate(double ttsRate) {
+    if (ttsRate <= 0.3) {
+      return 0.75;
+    }
+    if (ttsRate >= 0.6) {
+      return 1.25;
+    }
+    return 1.0;
   }
 
   Future<void> _changeSpeechRate(double rate) async {
@@ -206,6 +325,10 @@ class _ShadowingPracticeScreenState
     });
 
     await _flutterTts.setSpeechRate(rate);
+
+    if (_isSpeaking && _currentSegment.audioUrl.trim().isNotEmpty) {
+      await _audioPlayer.setPlaybackRate(_playbackRateForSpeechRate(rate));
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -477,6 +600,7 @@ class _ShadowingPracticeScreenState
     }
 
     await _flutterTts.stop();
+    await _audioPlayer.stop();
 
     if (!mounted) {
       return;

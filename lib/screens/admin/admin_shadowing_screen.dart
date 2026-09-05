@@ -130,6 +130,14 @@ class _AdminShadowingScreenState extends State<AdminShadowingScreen> {
       text: lesson?.description ?? '',
     );
 
+    final TextEditingController themeColorController = TextEditingController(
+      text: lesson?.themeColor ?? '',
+    );
+
+    final TextEditingController iconNameController = TextEditingController(
+      text: lesson?.iconName ?? '',
+    );
+
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     String level = lesson?.level ?? 'beginner';
@@ -159,6 +167,8 @@ class _AdminShadowingScreenState extends State<AdminShadowingScreen> {
                     title: titleController.text.trim(),
                     description: descriptionController.text.trim(),
                     level: level,
+                    themeColor: themeColorController.text.trim(),
+                    iconName: iconNameController.text.trim(),
                     createdAt: lesson?.createdAt,
                   );
 
@@ -271,6 +281,28 @@ class _AdminShadowingScreenState extends State<AdminShadowingScreen> {
                                       });
                                     },
                             ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: themeColorController,
+                              enabled: !isSaving,
+                              textInputAction: TextInputAction.next,
+                              decoration: const InputDecoration(
+                                labelText: 'Mã màu chủ đề (hex, không bắt buộc)',
+                                hintText: 'Ví dụ: #4A6FA5',
+                                prefixIcon: Icon(Icons.palette_outlined),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: iconNameController,
+                              enabled: !isSaving,
+                              decoration: const InputDecoration(
+                                labelText: 'Icon chủ đề (không bắt buộc)',
+                                hintText:
+                                    'Ví dụ: restaurant, flight, workplace...',
+                                prefixIcon: Icon(Icons.emoji_symbols_outlined),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -322,6 +354,8 @@ class _AdminShadowingScreenState extends State<AdminShadowingScreen> {
 
     titleController.dispose();
     descriptionController.dispose();
+    themeColorController.dispose();
+    iconNameController.dispose();
 
     if (wasSaved != true || !mounted) {
       return;
@@ -772,6 +806,10 @@ class _AdminShadowingSegmentsScreenState
       text: segment?.vietnameseTranslation ?? '',
     );
 
+    final TextEditingController audioUrlController = TextEditingController(
+      text: segment?.audioUrl ?? '',
+    );
+
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     bool isSaving = false;
@@ -804,6 +842,7 @@ class _AdminShadowingSegmentsScreenState
                     text: textController.text.trim(),
                     ipaPronunciation: ipaController.text.trim(),
                     vietnameseTranslation: translationController.text.trim(),
+                    audioUrl: audioUrlController.text.trim(),
                   );
 
                   try {
@@ -897,6 +936,17 @@ class _AdminShadowingSegmentsScreenState
                                 prefixIcon: Icon(Icons.translate_rounded),
                               ),
                             ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: audioUrlController,
+                              enabled: !isSaving,
+                              decoration: const InputDecoration(
+                                labelText:
+                                    'Link audio giọng đọc (không bắt buộc)',
+                                hintText: 'https://...',
+                                prefixIcon: Icon(Icons.volume_up_outlined),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -949,6 +999,7 @@ class _AdminShadowingSegmentsScreenState
     textController.dispose();
     ipaController.dispose();
     translationController.dispose();
+    audioUrlController.dispose();
 
     if (wasSaved != true || !mounted) {
       return;

@@ -9,6 +9,17 @@ class ShadowingLesson {
   final String title;
   final String description;
   final String level;
+
+  /// Mã màu hex (ví dụ "#4A6FA5") dùng làm màu chủ đạo cho banner
+  /// thẻ chủ đề. Rỗng nếu chưa gán - màn hình danh sách sẽ dùng màu
+  /// mặc định.
+  final String themeColor;
+
+  /// Tên icon chủ đề (khóa nội bộ do app định nghĩa, xem
+  /// `ShadowingLessonListScreen._iconForName`), ví dụ "restaurant",
+  /// "flight". Rỗng nếu chưa gán - dùng icon mặc định.
+  final String iconName;
+
   final DateTime? createdAt;
 
   const ShadowingLesson({
@@ -16,6 +27,8 @@ class ShadowingLesson {
     required this.title,
     required this.description,
     required this.level,
+    this.themeColor = '',
+    this.iconName = '',
     this.createdAt,
   });
 
@@ -31,6 +44,8 @@ class ShadowingLesson {
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
       level: data['level'] as String? ?? 'beginner',
+      themeColor: data['themeColor'] as String? ?? '',
+      iconName: data['iconName'] as String? ?? '',
       createdAt: _parseDateTime(data['createdAt']),
     );
   }
@@ -45,6 +60,8 @@ class ShadowingLesson {
       title: data['title'] as String? ?? '',
       description: data['description'] as String? ?? '',
       level: data['level'] as String? ?? 'beginner',
+      themeColor: data['themeColor'] as String? ?? '',
+      iconName: data['iconName'] as String? ?? '',
       createdAt: _parseDateTime(data['createdAt']),
     );
   }
@@ -55,6 +72,8 @@ class ShadowingLesson {
       'title': title.trim(),
       'description': description.trim(),
       'level': level.trim().toLowerCase(),
+      'themeColor': themeColor.trim(),
+      'iconName': iconName.trim(),
       'createdAt': createdAt == null
           ? FieldValue.serverTimestamp()
           : Timestamp.fromDate(createdAt!),
@@ -67,6 +86,8 @@ class ShadowingLesson {
     String? title,
     String? description,
     String? level,
+    String? themeColor,
+    String? iconName,
     DateTime? createdAt,
   }) {
     return ShadowingLesson(
@@ -74,6 +95,8 @@ class ShadowingLesson {
       title: title ?? this.title,
       description: description ?? this.description,
       level: level ?? this.level,
+      themeColor: themeColor ?? this.themeColor,
+      iconName: iconName ?? this.iconName,
       createdAt: createdAt ?? this.createdAt,
     );
   }

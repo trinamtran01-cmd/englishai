@@ -12,6 +12,11 @@ class ShadowingSegment {
   final String ipaPronunciation;
   final String vietnameseTranslation;
 
+  /// URL file audio giọng đọc tự nhiên (Gemini TTS) cho câu này.
+  /// Rỗng nếu câu chưa có audio dựng sẵn - màn hình luyện tập sẽ
+  /// dùng `flutter_tts` (giọng đọc thiết bị) làm phương án dự phòng.
+  final String audioUrl;
+
   const ShadowingSegment({
     required this.id,
     required this.lessonId,
@@ -19,6 +24,7 @@ class ShadowingSegment {
     required this.text,
     required this.ipaPronunciation,
     this.vietnameseTranslation = '',
+    this.audioUrl = '',
   });
 
   /// Tạo đối tượng ShadowingSegment từ document Firestore.
@@ -39,6 +45,7 @@ class ShadowingSegment {
       vietnameseTranslation: _collapseWhitespace(
         data['vietnameseTranslation'] as String? ?? '',
       ),
+      audioUrl: data['audioUrl'] as String? ?? '',
     );
   }
 
@@ -58,6 +65,7 @@ class ShadowingSegment {
       vietnameseTranslation: _collapseWhitespace(
         data['vietnameseTranslation'] as String? ?? '',
       ),
+      audioUrl: data['audioUrl'] as String? ?? '',
     );
   }
 
@@ -71,6 +79,7 @@ class ShadowingSegment {
       'vietnameseTranslation': _collapseWhitespace(
         vietnameseTranslation,
       ),
+      'audioUrl': audioUrl.trim(),
     };
   }
 
@@ -82,6 +91,7 @@ class ShadowingSegment {
     String? text,
     String? ipaPronunciation,
     String? vietnameseTranslation,
+    String? audioUrl,
   }) {
     return ShadowingSegment(
       id: id ?? this.id,
@@ -92,6 +102,7 @@ class ShadowingSegment {
           ipaPronunciation ?? this.ipaPronunciation,
       vietnameseTranslation:
           vietnameseTranslation ?? this.vietnameseTranslation,
+      audioUrl: audioUrl ?? this.audioUrl,
     );
   }
 
