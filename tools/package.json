@@ -10,6 +10,7 @@
   "private": true,
   "type": "commonjs",
   "dependencies": {
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "playwright": "^1.63.0"
   }
 }

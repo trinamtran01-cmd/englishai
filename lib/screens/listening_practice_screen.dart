@@ -113,23 +113,42 @@ class _ListeningPracticeScreenState
   // Giai đoạn A: nghe & điền từ.
   // ---------------------------------------------------------------------
 
-  void _addTypedWord() {
-    final String rawWord = _wordController.text.trim();
+  /// Chuẩn hóa một từ để so khớp với transcript: lowercase, bỏ dấu
+  /// câu ở 2 đầu (transcriptWords vốn đã được chuẩn hóa như vậy khi
+  /// tạo bài luyện nghe, xem `ListeningVideo.parseTranscriptText`).
+  String _normalizeWordForMatch(String word) {
+    return word
+        .toLowerCase()
+        .replaceAll(RegExp(r"^[^a-z0-9']+|[^a-z0-9']+$"), '');
+  }
 
-    if (rawWord.isEmpty) {
+  void _addTypedWord() {
+    final String rawInput = _wordController.text.trim();
+
+    if (rawInput.isEmpty) {
       return;
     }
 
-    final bool isCorrect = widget.video.transcriptWords
-        .contains(rawWord.toLowerCase());
+    // Người dùng có thể gõ liền một cụm nhiều từ cách nhau bởi dấu
+    // cách rồi bấm thêm 1 lần — tách ra để chấm và hiển thị từng từ
+    // riêng biệt, thay vì so khớp cả cụm như 1 từ duy nhất.
+    final List<String> words = rawInput
+        .split(RegExp(r'\s+'))
+        .where((String word) => word.isNotEmpty)
+        .toList();
 
     setState(() {
-      _typedWords.add(
-        _TypedWordResult(
-          word: rawWord,
-          isCorrect: isCorrect,
-        ),
-      );
+      for (final String word in words) {
+        final bool isCorrect = widget.video.transcriptWords
+            .contains(_normalizeWordForMatch(word));
+
+        _typedWords.add(
+          _TypedWordResult(
+            word: word,
+            isCorrect: isCorrect,
+          ),
+        );
+      }
       _wordController.clear();
     });
   }

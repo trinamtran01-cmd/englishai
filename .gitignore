@@ -52,3 +52,6 @@ app.*.map.json
 tools/node_modules/
 tools/transcripts/
 tools/output/
+tools/yt_captions/
+tools/bulk_add_screenshots/
+tools/bulk_add_writing_screenshots/
