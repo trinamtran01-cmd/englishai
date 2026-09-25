@@ -1,0 +1,62 @@
+[
+  {
+    "segmentId": "7yCQuFTTw20aDXbvi8Ng",
+    "order": 1,
+    "text": "Can we adjust the budget for this project?",
+    "file": "negotiation_01.wav"
+  },
+  {
+    "segmentId": "kbZGRTToS2xD1CHtrAaB",
+    "order": 2,
+    "text": "That price is a bit too high for us.",
+    "file": "negotiation_02.wav"
+  },
+  {
+    "segmentId": "p0mvj72pxNJy50Tk205K",
+    "order": 3,
+    "text": "Let us know your final offer by Friday.",
+    "file": "negotiation_03.wav"
+  },
+  {
+    "segmentId": "fkzvXv4sxSvrUy6NDRHF",
+    "order": 4,
+    "text": "We need a better discount on bulk orders.",
+    "file": "negotiation_04.wav"
+  },
+  {
+    "segmentId": "cXO6W2blqVN2CyAlTH1Y",
+    "order": 5,
+    "text": "Is there any room for negotiation here?",
+    "file": "negotiation_05.wav"
+  },
+  {
+    "segmentId": "hXykr2FjBLLFI0oJ574z",
+    "order": 6,
+    "text": "We can agree if you include free shipping.",
+    "file": "negotiation_06.wav"
+  },
+  {
+    "segmentId": "d1zHM2RguSHdELeD9CCq",
+    "order": 7,
+    "text": "That condition does not work for our team.",
+    "file": "negotiation_07.wav"
+  },
+  {
+    "segmentId": "VVNLVrnpFXuyc7upLgjy",
+    "order": 8,
+    "text": "Can you offer a shorter delivery time?",
+    "file": "negotiation_08.wav"
+  },
+  {
+    "segmentId": "LoEsaq6SXuvHp6Ct2bIT",
+    "order": 9,
+    "text": "We usually pay within thirty days of delivery.",
+    "file": "negotiation_09.wav"
+  },
+  {
+    "segmentId": "gCpkRubO3qDHNfVTA2ib",
+    "order": 10,
+    "text": "Let us split the difference on this cost.",
+    "file": "negotiation_10.wav"
+  }
+]
