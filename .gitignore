@@ -55,3 +55,13 @@ tools/output/
 tools/yt_captions/
 tools/bulk_add_screenshots/
 tools/bulk_add_writing_screenshots/
+
+# Firebase CLI cache
+.firebase/
+
+# Tài liệu/công cụ làm báo cáo đồ án — không thuộc mã nguồn ứng dụng
+CLAUDE.md
+screenshots_tuan*/
+scripts_tmp/
+integration_test/
+test_driver/
